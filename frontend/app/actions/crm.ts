@@ -187,7 +187,7 @@ export async function reorderStages(pipelineId: string, stageIds: string[]): Pro
 // DEALS — KANBAN BOARD
 // ========================================
 
-export async function getAdminKanbanBoard(pipelineId: string): Promise<ActionResult<AdminKanbanBoard>> {
+export async function getAdminKanbanBoard(pipelineId: string, corretorFilter?: string | null): Promise<ActionResult<AdminKanbanBoard>> {
   try {
     const sb = createServiceClient();
 
@@ -208,12 +208,12 @@ export async function getAdminKanbanBoard(pipelineId: string): Promise<ActionRes
 
     const stages = stagesRaw ?? [];
 
-    // Deals com joins
-    const { data: deals, error: dErr } = await sb
+    // Deals com joins (com filtro de corretor opcional)
+    let dealsQuery = sb
       .from('crm_deals')
       .select(`
         *,
-        contact:crm_contacts(nome, sobrenome, email, whatsapp, avatar_url),
+        contact:crm_contacts(nome, sobrenome, email, telefone, whatsapp, cargo, avatar_url),
         company:crm_companies(nome, cnpj),
         owner:corretores(nome, foto_url),
         stage:crm_stages(nome, cor, slug)
@@ -221,6 +221,12 @@ export async function getAdminKanbanBoard(pipelineId: string): Promise<ActionRes
       .eq('pipeline_id', pipelineId)
       .is('data_perda', null)
       .order('posicao');
+
+    if (corretorFilter) {
+      dealsQuery = dealsQuery.eq('owner_corretor_id', corretorFilter);
+    }
+
+    const { data: deals, error: dErr } = await dealsQuery;
     if (dErr) throw dErr;
 
     // Agrupar deals por stage
@@ -388,6 +394,64 @@ export async function markDealLost(
   }
 }
 
+export async function markDealWon(
+  dealId: string,
+  corretorId: string,
+): Promise<ActionResult> {
+  try {
+    const sb = createServiceClient();
+
+    // Buscar stage "ganho" do pipeline
+    const { data: deal } = await sb.from('crm_deals').select('pipeline_id, titulo, valor').eq('id', dealId).single();
+    if (!deal) throw new Error('Deal não encontrado');
+
+    const { data: wonStage } = await sb
+      .from('crm_stages')
+      .select('id')
+      .eq('pipeline_id', deal.pipeline_id)
+      .eq('is_won', true)
+      .single();
+
+    const updates: CrmDealUpdate = {
+      data_ganho: new Date().toISOString(),
+    };
+    if (wonStage) updates.stage_id = wonStage.id;
+
+    const { error } = await sb.from('crm_deals').update(updates).eq('id', dealId);
+    if (error) throw error;
+
+    await sb.from('crm_activities').insert({
+      deal_id: dealId,
+      owner_corretor_id: corretorId,
+      tipo: 'sistema',
+      assunto: 'Deal ganho! 🎉',
+      descricao: `"${deal.titulo}" fechado com valor de R$ ${(deal.valor ?? 0).toLocaleString('pt-BR')}`,
+    });
+
+    return { success: true };
+  } catch (e) {
+    logger.error('[markDealWon]', e);
+    return err('Erro ao marcar deal como ganho');
+  }
+}
+
+export async function reorderDealsInStage(
+  stageId: string,
+  dealIds: string[],
+): Promise<ActionResult> {
+  try {
+    const sb = createServiceClient();
+    const updates = dealIds.map((id, i) =>
+      sb.from('crm_deals').update({ posicao: i }).eq('id', id).eq('stage_id', stageId)
+    );
+    await Promise.all(updates);
+    return { success: true };
+  } catch (e) {
+    logger.error('[reorderDealsInStage]', e);
+    return err('Erro ao reordenar deals');
+  }
+}
+
 export async function deleteDeal(dealId: string): Promise<ActionResult> {
   try {
     const sb = createServiceClient();
@@ -407,7 +471,7 @@ export async function getDealDetail(dealId: string): Promise<ActionResult<CrmDea
       .from('crm_deals')
       .select(`
         *,
-        contact:crm_contacts(nome, sobrenome, email, whatsapp, avatar_url),
+        contact:crm_contacts(nome, sobrenome, email, telefone, whatsapp, cargo, avatar_url),
         company:crm_companies(nome, cnpj),
         owner:corretores(nome, foto_url),
         stage:crm_stages(nome, cor, slug)
@@ -461,7 +525,7 @@ export async function getDealsList(
       .from('crm_deals')
       .select(`
         *,
-        contact:crm_contacts(nome, sobrenome, email, whatsapp, avatar_url),
+        contact:crm_contacts(nome, sobrenome, email, telefone, whatsapp, cargo, avatar_url),
         company:crm_companies(nome, cnpj),
         owner:corretores(nome, foto_url),
         stage:crm_stages(nome, cor, slug)
@@ -720,6 +784,44 @@ export async function getCompaniesList(
   }
 }
 
+export async function getCompanyDetail(companyId: string): Promise<ActionResult<CrmCompanyEnriched>> {
+  try {
+    const sb = createServiceClient();
+    const { data, error } = await sb
+      .from('crm_companies')
+      .select(`
+        *,
+        owner:corretores(nome)
+      `)
+      .eq('id', companyId)
+      .single();
+    if (error) throw error;
+
+    const enriched: CrmCompanyEnriched = {
+      ...data,
+      owner_nome: data.owner?.nome ?? null,
+      total_contacts: 0,
+      total_deals: 0,
+      valor_total_deals: 0,
+    };
+
+    // Buscar contagem de contatos e deals relacionados
+    const [contactsCount, dealsCount] = await Promise.all([
+      sb.from('crm_contacts').select('id', { count: 'exact', head: true }).eq('company_id', companyId),
+      sb.from('crm_deals').select('id, valor', { count: 'exact' }).eq('company_id', companyId),
+    ]);
+
+    enriched.total_contacts = contactsCount.count ?? 0;
+    enriched.total_deals = dealsCount.count ?? 0;
+    enriched.valor_total_deals = (dealsCount.data ?? []).reduce((sum, d) => sum + (d.valor ?? 0), 0);
+
+    return ok(enriched);
+  } catch (e) {
+    logger.error('[getCompanyDetail]', e);
+    return err('Erro ao carregar empresa');
+  }
+}
+
 // ========================================
 // ACTIVITIES
 // ========================================
@@ -797,6 +899,48 @@ export async function completeActivity(activityId: string): Promise<ActionResult
   } catch (e) {
     logger.error('[completeActivity]', e);
     return err('Erro ao concluir atividade');
+  }
+}
+
+export async function updateActivity(
+  activityId: string,
+  updates: Partial<CrmActivityInsert>,
+): Promise<ActionResult> {
+  try {
+    const sb = createServiceClient();
+    const { error } = await sb.from('crm_activities').update(updates).eq('id', activityId);
+    if (error) throw error;
+    return { success: true };
+  } catch (e) {
+    logger.error('[updateActivity]', e);
+    return err('Erro ao atualizar atividade');
+  }
+}
+
+export async function deleteActivity(activityId: string): Promise<ActionResult> {
+  try {
+    const sb = createServiceClient();
+    const { error } = await sb.from('crm_activities').delete().eq('id', activityId);
+    if (error) throw error;
+    return { success: true };
+  } catch (e) {
+    logger.error('[deleteActivity]', e);
+    return err('Erro ao excluir atividade');
+  }
+}
+
+export async function pinActivity(activityId: string, pinned: boolean): Promise<ActionResult> {
+  try {
+    const sb = createServiceClient();
+    const { error } = await sb
+      .from('crm_activities')
+      .update({ metadata: { pinned } })
+      .eq('id', activityId);
+    if (error) throw error;
+    return { success: true };
+  } catch (e) {
+    logger.error('[pinActivity]', e);
+    return err('Erro ao fixar atividade');
   }
 }
 

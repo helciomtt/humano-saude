@@ -25,6 +25,7 @@ import type { CrmActivityInsert } from '@/lib/types/crm';
 export function useAdminKanban(initialPipelineId?: string) {
   const [pipelines, setPipelines] = useState<CrmPipeline[]>([]);
   const [activePipelineId, setActivePipelineId] = useState<string>(initialPipelineId ?? '');
+  const [corretorFilter, setCorretorFilter] = useState<string | null>(null);
   const [board, setBoard] = useState<AdminKanbanBoard | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDeal, setSelectedDeal] = useState<CrmDealEnriched | null>(null);
@@ -44,22 +45,22 @@ export function useAdminKanban(initialPipelineId?: string) {
     })();
   }, [initialPipelineId]);
 
-  // Carregar board quando pipeline muda
+  // Carregar board quando pipeline ou filtro de corretor muda
   const fetchBoard = useCallback(async () => {
     if (!activePipelineId) return;
     setLoading(true);
-    const res = await getAdminKanbanBoard(activePipelineId);
+    const res = await getAdminKanbanBoard(activePipelineId, corretorFilter);
     if (res.success && res.data) {
       setBoard(res.data);
     } else {
       toast.error(res.error ?? 'Erro ao carregar pipeline');
     }
     setLoading(false);
-  }, [activePipelineId]);
+  }, [activePipelineId, corretorFilter]);
 
   useEffect(() => {
     if (activePipelineId) fetchBoard();
-  }, [activePipelineId, fetchBoard]);
+  }, [activePipelineId, corretorFilter, fetchBoard]);
 
   // Move deal com optimistic update
   const handleMoveDeal = useCallback(async (
@@ -115,6 +116,8 @@ export function useAdminKanban(initialPipelineId?: string) {
     pipelines,
     activePipelineId,
     setActivePipelineId,
+    corretorFilter,
+    setCorretorFilter,
     board,
     loading,
     selectedDeal,

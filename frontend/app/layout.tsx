@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
@@ -45,6 +45,11 @@ export const metadata: Metadata = {
     ],
   },
   manifest: '/site.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Humano Saúde',
+  },
   openGraph: {
     type: "website",
     locale: "pt_BR",
@@ -53,6 +58,13 @@ export const metadata: Metadata = {
     description: "Sistema completo de gestão e cotações para corretores de saúde com IA",
     siteName: "Humano Saúde",
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#D4AF37',
 };
 
 export default function RootLayout({

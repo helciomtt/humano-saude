@@ -31,7 +31,6 @@ import {
   Link2,
   Building2,
   Briefcase,
-  BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
 import NextImage from 'next/image';
@@ -92,7 +91,6 @@ const menuItems: SidebarItem[] = [
       { id: 'crm-contacts', label: 'Contatos', icon: UserPlus, href: `${B}/crm/contacts` },
       { id: 'crm-companies', label: 'Empresas', icon: Building2, href: `${B}/crm/companies` },
       { id: 'crm-metricas', label: 'Métricas', icon: TrendingUp, href: `${B}/crm/metricas` },
-      { id: 'crm-analytics', label: 'Analytics CRM', icon: BarChart3, href: `${B}/crm/analytics` },
     ],
   },
   {

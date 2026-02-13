@@ -46,6 +46,10 @@ const INTERACAO_ICONS: Record<CrmInteracaoTipo, {
   status_change: { icon: ArrowRight, color: 'text-[#D4AF37]', bgColor: 'bg-[#D4AF37]/10' },
   nota_voz: { icon: Mic, color: 'text-orange-400', bgColor: 'bg-orange-500/10' },
   sistema: { icon: Sparkles, color: 'text-white/40', bgColor: 'bg-white/5' },
+  tarefa: { icon: CheckCircle, color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
+  follow_up: { icon: Clock, color: 'text-indigo-400', bgColor: 'bg-indigo-500/10' },
+  documento_enviado: { icon: Send, color: 'text-teal-400', bgColor: 'bg-teal-500/10' },
+  visita: { icon: User, color: 'text-pink-400', bgColor: 'bg-pink-500/10' },
 };
 
 // ========================================

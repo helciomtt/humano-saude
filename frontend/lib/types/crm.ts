@@ -220,7 +220,9 @@ export type CrmDealEnriched = CrmDeal & {
     nome: string;
     sobrenome: string | null;
     email: string | null;
+    telefone: string | null;
     whatsapp: string | null;
+    cargo: string | null;
     avatar_url: string | null;
   } | null;
   company?: {
@@ -465,6 +467,226 @@ export type CrmCompanyFilters = {
   orderDir?: 'asc' | 'desc';
   page?: number;
   perPage?: number;
+};
+
+// ========================================
+// ATTACHMENTS
+// ========================================
+
+export type CrmAttachment = {
+  id: string;
+  entity_type: 'deal' | 'contact' | 'company' | 'activity' | 'quote';
+  entity_id: string;
+  file_name: string;
+  file_url: string;
+  storage_path: string | null;
+  file_size_bytes: number | null;
+  mime_type: string | null;
+  version: number;
+  parent_id: string | null;
+  uploaded_by: string | null;
+  created_at: string;
+};
+
+export type CrmAttachmentInsert = Omit<CrmAttachment, 'id' | 'created_at'>;
+
+export type CrmAttachmentEnriched = CrmAttachment & {
+  uploaded_by_nome?: string | null;
+};
+
+// ========================================
+// FOLLOWERS
+// ========================================
+
+export type CrmFollower = {
+  id: string;
+  entity_type: 'deal' | 'contact' | 'company';
+  entity_id: string;
+  corretor_id: string;
+  auto_follow: boolean;
+  created_at: string;
+};
+
+export type CrmFollowerEnriched = CrmFollower & {
+  corretor_nome: string;
+  corretor_foto: string | null;
+};
+
+// ========================================
+// CHANGELOG (Audit Trail)
+// ========================================
+
+export type CrmChangelog = {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  field_name: string;
+  old_value: string | null;
+  new_value: string | null;
+  changed_by: string | null;
+  changed_by_type: 'user' | 'workflow' | 'api' | 'system';
+  created_at: string;
+};
+
+export type CrmChangelogEnriched = CrmChangelog & {
+  changed_by_nome?: string | null;
+};
+
+// Mapa de nomes de campo para labels legíveis
+export const CRM_FIELD_LABELS: Record<string, string> = {
+  stage_id: 'Etapa',
+  valor: 'Valor',
+  owner_corretor_id: 'Responsável',
+  prioridade: 'Prioridade',
+  data_previsao_fechamento: 'Previsão de Fechamento',
+  titulo: 'Título',
+  contact_id: 'Contato',
+  company_id: 'Empresa',
+  probabilidade: 'Probabilidade',
+  status: 'Status',
+  lifecycle_stage: 'Lifecycle Stage',
+};
+
+// ========================================
+// COMMENTS
+// ========================================
+
+export type CrmComment = {
+  id: string;
+  entity_type: 'deal' | 'contact' | 'company' | 'activity';
+  entity_id: string;
+  corretor_id: string;
+  comment_text: string;
+  mentions: string[];
+  parent_comment_id: string | null;
+  is_pinned: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CrmCommentInsert = {
+  entity_type: CrmComment['entity_type'];
+  entity_id: string;
+  corretor_id: string;
+  comment_text: string;
+  mentions?: string[];
+  parent_comment_id?: string | null;
+};
+
+export type CrmCommentEnriched = CrmComment & {
+  corretor_nome: string;
+  corretor_foto: string | null;
+  replies?: CrmCommentEnriched[];
+};
+
+// ========================================
+// QUOTES (Propostas/Cotações)
+// ========================================
+
+export const CRM_QUOTE_STATUSES = ['draft', 'sent', 'viewed', 'accepted', 'declined', 'expired'] as const;
+export type CrmQuoteStatus = (typeof CRM_QUOTE_STATUSES)[number];
+
+export type CrmQuote = {
+  id: string;
+  deal_id: string;
+  quote_number: string;
+  titulo: string;
+  status: CrmQuoteStatus;
+  subtotal: number;
+  desconto_valor: number;
+  imposto_valor: number;
+  total: number;
+  moeda: string;
+  valido_ate: string | null;
+  pdf_url: string | null;
+  view_count: number;
+  last_viewed_at: string | null;
+  accepted_at: string | null;
+  declined_at: string | null;
+  observacoes: string | null;
+  termos: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CrmQuoteInsert = Omit<CrmQuote, 'id' | 'created_at' | 'updated_at' | 'quote_number' | 'view_count' | 'last_viewed_at' | 'accepted_at' | 'declined_at'>;
+
+export type CrmQuoteItem = {
+  id: string;
+  quote_id: string;
+  product_id: string | null;
+  nome: string;
+  descricao: string | null;
+  quantidade: number;
+  preco_unitario: number;
+  desconto_pct: number;
+  total: number;
+  posicao: number;
+  created_at: string;
+};
+
+export type CrmQuoteItemInsert = Omit<CrmQuoteItem, 'id' | 'created_at'>;
+
+// ========================================
+// NOTIFICATIONS
+// ========================================
+
+export const CRM_NOTIFICATION_TYPES = [
+  'deal_moved', 'deal_won', 'deal_lost', 'deal_assigned',
+  'activity_overdue', 'activity_assigned',
+  'comment_mention', 'comment_reply',
+  'follower_update', 'quote_viewed', 'quote_accepted', 'quote_declined',
+  'system',
+] as const;
+export type CrmNotificationType = (typeof CRM_NOTIFICATION_TYPES)[number];
+
+export type CrmNotification = {
+  id: string;
+  corretor_id: string;
+  tipo: CrmNotificationType;
+  titulo: string;
+  mensagem: string | null;
+  entity_type: string | null;
+  entity_id: string | null;
+  action_url: string | null;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+};
+
+// ========================================
+// DEAL DETAIL (Agregação completa para o painel)
+// ========================================
+
+export type CrmDealDetail = CrmDealEnriched & {
+  activities: CrmActivityEnriched[];
+  attachments: CrmAttachmentEnriched[];
+  followers: CrmFollowerEnriched[];
+  changelog: CrmChangelogEnriched[];
+  comments: CrmCommentEnriched[];
+  quotes: CrmQuote[];
+  products: (CrmDealProduct & { product_nome?: string })[];
+  related_deals: Array<{
+    id: string;
+    titulo: string;
+    valor: number | null;
+    stage_nome: string | null;
+    stage_cor: string | null;
+    data_ganho: string | null;
+    data_perda: string | null;
+  }>;
+  stage_progress: Array<{
+    id: string;
+    nome: string;
+    cor: string;
+    posicao: number;
+    probabilidade: number;
+    is_current: boolean;
+    is_completed: boolean;
+  }>;
+  overdue_tasks: CrmActivityEnriched[];
+  today_tasks: CrmActivityEnriched[];
 };
 
 // ========================================

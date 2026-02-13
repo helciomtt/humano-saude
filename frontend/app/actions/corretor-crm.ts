@@ -38,6 +38,10 @@ function enrichCard(card: CrmCard & { lead?: Record<string, unknown> | null }): 
           email: card.lead.email ? String(card.lead.email) : null,
           operadora_atual: card.lead.operadora_atual ? String(card.lead.operadora_atual) : null,
           valor_atual: card.lead.valor_atual ? Number(card.lead.valor_atual) : null,
+          origem: card.lead.origem ? String(card.lead.origem) : null,
+          tipo_contratacao: card.lead.tipo_contratacao ? String(card.lead.tipo_contratacao) : null,
+          observacoes: card.lead.observacoes ? String(card.lead.observacoes) : null,
+          created_at: card.lead.created_at ? String(card.lead.created_at) : null,
         }
       : null,
     is_hot: hoursSincePropostaInteraction <= 24,
@@ -62,7 +66,7 @@ export async function getKanbanBoard(corretorId: string): Promise<{
       .from('crm_cards')
       .select(`
         *,
-        lead:insurance_leads(nome, whatsapp, email, operadora_atual, valor_atual)
+        lead:insurance_leads(nome, whatsapp, email, operadora_atual, valor_atual, origem, tipo_contratacao, observacoes, created_at)
       `)
       .eq('corretor_id', corretorId)
       .order('posicao', { ascending: true });
@@ -150,6 +154,7 @@ export async function createLeadWithCard(input: {
   tipo_contratacao?: string | null;
   idades?: number[];
   observacoes?: string | null;
+  origem?: string | null;
   // Dados do card
   valor_estimado?: number | null;
   prioridade?: 'baixa' | 'media' | 'alta' | 'urgente';
@@ -170,7 +175,7 @@ export async function createLeadWithCard(input: {
         tipo_contratacao: input.tipo_contratacao ?? null,
         idades: input.idades ?? [],
         status: 'novo',
-        origem: 'corretor_crm',
+        origem: input.origem ?? 'corretor_crm',
         prioridade: input.prioridade ?? 'media',
         observacoes: input.observacoes ?? null,
         atribuido_a: null,
@@ -584,7 +589,7 @@ export async function getLeadsList(
       .from('crm_cards')
       .select(`
         *,
-        lead:insurance_leads(nome, whatsapp, email, operadora_atual, valor_atual)
+        lead:insurance_leads(nome, whatsapp, email, operadora_atual, valor_atual, origem, tipo_contratacao, observacoes, created_at)
       `, { count: 'exact' })
       .eq('corretor_id', corretorId);
 

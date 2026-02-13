@@ -98,5 +98,7 @@ $fn$ LANGUAGE plpgsql;
 -- RLS
 ALTER TABLE planos_operadora ENABLE ROW LEVEL SECURITY;
 ALTER TABLE precos_faixa ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "planos_read" ON planos_operadora;
 CREATE POLICY "planos_read" ON planos_operadora FOR SELECT USING (true);
+DROP POLICY IF EXISTS "precos_read" ON precos_faixa;
 CREATE POLICY "precos_read" ON precos_faixa FOR SELECT USING (true);

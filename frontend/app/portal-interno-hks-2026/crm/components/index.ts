@@ -4,3 +4,5 @@ export { default as CrmMetricsDashboard } from './CrmMetricsDashboard';
 export { default as ContactsTable } from './ContactsTable';
 export { default as CompaniesTable } from './CompaniesTable';
 export { default as DealsTable } from './DealsTable';
+export { default as SalesChart } from './SalesChart';
+export { default as ConversionFunnel } from './ConversionFunnel';

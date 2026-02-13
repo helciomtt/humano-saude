@@ -39,6 +39,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
   logger.warn('⚠️ Missing Supabase environment variables. Database features will be unavailable.');
 }
 
+// Cliente público (anon key)
+// NOTA: Não tipado com Database<> pois o projeto tem 50+ tabelas.
+// Para queries tipadas, importe Database de '@/lib/types/supabase'.
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder'

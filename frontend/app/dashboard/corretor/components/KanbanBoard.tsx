@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
@@ -26,13 +27,28 @@ import {
   Tag,
   Flag,
   StickyNote,
+  Search,
+  Filter,
+  Flame,
+  SlidersHorizontal,
+  MapPin,
+  TrendingUp,
+  HeartHandshake,
+  RefreshCw,
+  ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CrmCardEnriched, KanbanColumnSlug, KanbanBoard } from '@/lib/types/corretor';
 import { useKanban } from '../hooks/useKanban';
 import { createLeadWithCard } from '@/app/actions/corretor-crm';
 import { toast } from 'sonner';
-import LeadDrawer from './LeadDrawer';
+
+// Official WhatsApp SVG icon
+const WhatsAppIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+  </svg>
+);
 
 // ========================================
 // COLUMN CONFIG
@@ -211,7 +227,7 @@ function KanbanCard({
                 }}
                 className="h-6 w-6 rounded-md bg-green-500/10 flex items-center justify-center hover:bg-green-500/20 transition-colors"
               >
-                <Phone className="h-3 w-3 text-green-400" />
+                <WhatsAppIcon className="h-3 w-3 text-green-400" />
               </button>
             )}
             {card.lead?.email && (
@@ -363,6 +379,7 @@ type NewLeadForm = {
   valor_estimado: string;
   prioridade: 'baixa' | 'media' | 'alta' | 'urgente';
   tags: string;
+  origem: string;
 };
 
 const EMPTY_FORM: NewLeadForm = {
@@ -377,7 +394,20 @@ const EMPTY_FORM: NewLeadForm = {
   valor_estimado: '',
   prioridade: 'media',
   tags: '',
+  origem: 'corretor_crm',
 };
+
+const ORIGENS_LEAD = [
+  { value: 'corretor_crm', label: 'Manual (CRM)' },
+  { value: 'indicacao', label: 'Indicação' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'landing_page', label: 'Landing Page' },
+  { value: 'meta_ads', label: 'Meta Ads (Facebook/Instagram)' },
+  { value: 'google_ads', label: 'Google Ads' },
+  { value: 'site', label: 'Website' },
+  { value: 'scanner_pdf', label: 'Scanner PDF' },
+  { value: 'outro', label: 'Outro' },
+];
 
 function NewLeadModal({
   isOpen,
@@ -428,6 +458,7 @@ function NewLeadModal({
       valor_estimado: form.valor_estimado ? parseFloat(form.valor_estimado) : null,
       prioridade: form.prioridade,
       tags: form.tags ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
+      origem: form.origem || 'corretor_crm',
     });
 
     setSaving(false);
@@ -522,6 +553,29 @@ function NewLeadModal({
                 placeholder="joao@email.com"
                 className={inputClass}
               />
+            </div>
+          </div>
+
+          {/* Seção: Origem */}
+          <div className="space-y-1 pt-2">
+            <h3 className="text-xs font-semibold text-[#D4AF37]/80 uppercase tracking-wider flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5" /> Origem do Lead
+            </h3>
+            <div className="h-px bg-gradient-to-r from-[#D4AF37]/20 to-transparent" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Como chegou até você?</label>
+              <select
+                value={form.origem}
+                onChange={(e) => update('origem', e.target.value)}
+                className={inputClass}
+              >
+                {ORIGENS_LEAD.map((o) => (
+                  <option key={o.value} value={o.value} className="bg-[#0A0A0A]">{o.label}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -687,18 +741,57 @@ function NewLeadModal({
 // ========================================
 
 export default function KanbanBoard({ corretorId }: { corretorId: string }) {
+  const router = useRouter();
   const {
     board,
     loading,
-    selectedCard,
-    drawerOpen,
     handleMoveCard,
-    openDrawer,
-    closeDrawer,
     fetchBoard,
   } = useKanban(corretorId);
 
   const [addingTo, setAddingTo] = useState<KanbanColumnSlug | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [filterHot, setFilterHot] = useState(false);
+  const [filterStale, setFilterStale] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
+  const [selectedFunnel, setSelectedFunnel] = useState('vendas');
+
+  const navigateToLead = (card: CrmCardEnriched) => {
+    router.push(`/dashboard/corretor/crm/lead/${card.id}`);
+  };
+
+  // Filter cards
+  const filterCards = useCallback((cards: CrmCardEnriched[]): CrmCardEnriched[] => {
+    return cards.filter((card) => {
+      // Search
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        const matchTitle = card.titulo?.toLowerCase().includes(term);
+        const matchName = card.lead?.nome?.toLowerCase().includes(term);
+        const matchEmail = card.lead?.email?.toLowerCase().includes(term);
+        const matchPhone = card.lead?.whatsapp?.includes(term);
+        const matchTag = card.tags?.some((t) => t.toLowerCase().includes(term));
+        if (!matchTitle && !matchName && !matchEmail && !matchPhone && !matchTag) return false;
+      }
+      // Priority
+      if (filterPriority !== 'all' && card.prioridade !== filterPriority) return false;
+      // Hot
+      if (filterHot && !card.is_hot) return false;
+      // Stale
+      if (filterStale && !card.is_stale) return false;
+      return true;
+    });
+  }, [searchTerm, filterPriority, filterHot, filterStale]);
+
+  const hasActiveFilters = searchTerm || filterPriority !== 'all' || filterHot || filterStale;
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setFilterPriority('all');
+    setFilterHot(false);
+    setFilterStale(false);
+  };
 
   if (loading) {
     return (
@@ -724,22 +817,150 @@ export default function KanbanBoard({ corretorId }: { corretorId: string }) {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-[#D4AF37]" />
-            Pipeline CRM
-          </h2>
-          <p className="text-sm text-white/50">Arraste os cards entre as colunas</p>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-[#D4AF37]" />
+              Pipeline CRM
+            </h2>
+            <p className="text-sm text-white/50">Arraste os cards entre as colunas</p>
+          </div>
+          {/* Funnel Selector */}
+          <div className="flex items-center gap-1 bg-white/[0.02] border border-white/[0.06] rounded-xl p-1">
+            {[
+              { value: 'vendas', label: 'Vendas', icon: TrendingUp, color: '#D4AF37' },
+              { value: 'pos_venda', label: 'Pós-Venda', icon: HeartHandshake, color: '#8B5CF6' },
+              { value: 'renovacao', label: 'Renovação', icon: RefreshCw, color: '#06B6D4' },
+            ].map((f) => {
+              const FIcon = f.icon;
+              const isActive = selectedFunnel === f.value;
+              return (
+                <button key={f.value} onClick={() => setSelectedFunnel(f.value)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                    isActive
+                      ? 'text-white shadow-sm'
+                      : 'text-white/40 hover:text-white/60 hover:bg-white/[0.04]',
+                  )}
+                  style={isActive ? { backgroundColor: `${f.color}18`, color: f.color, border: `1px solid ${f.color}30` } : { border: '1px solid transparent' }}>
+                  <FIcon className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{f.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <button
-          onClick={() => setAddingTo('novo_lead')}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F6E05E] text-black text-sm font-semibold hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all"
-        >
-          <Plus className="h-4 w-4" />
-          Novo Lead
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={cn(
+              'flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all border',
+              hasActiveFilters
+                ? 'bg-[#D4AF37]/15 border-[#D4AF37]/30 text-[#D4AF37]'
+                : 'bg-white/[0.03] border-white/[0.06] text-white/50 hover:text-white/70',
+            )}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            Filtros
+            {hasActiveFilters && (
+              <span className="w-2 h-2 rounded-full bg-[#D4AF37]" />
+            )}
+          </button>
+          <button
+            onClick={() => setAddingTo('novo_lead')}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F6E05E] text-black text-sm font-semibold hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all"
+          >
+            <Plus className="h-4 w-4" />
+            Novo Lead
+          </button>
+        </div>
       </div>
+
+      {/* Filter Bar */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-wrap items-center gap-3 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl relative">
+              {/* Close button */}
+              <button
+                onClick={() => setShowFilters(false)}
+                className="absolute top-2 right-2 p-1 hover:bg-white/[0.06] rounded-lg transition-colors"
+              >
+                <X className="w-3.5 h-3.5 text-white/30" />
+              </button>
+              {/* Search */}
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                <input
+                  type="text"
+                  placeholder="Buscar por nome, email, telefone, tag..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#D4AF37]/40"
+                />
+              </div>
+
+              {/* Priority Filter */}
+              <select
+                value={filterPriority}
+                onChange={(e) => setFilterPriority(e.target.value)}
+                className="px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-white text-sm cursor-pointer"
+              >
+                <option value="all">Todas Prioridades</option>
+                <option value="urgente">🔴 Urgente</option>
+                <option value="alta">🟠 Alta</option>
+                <option value="media">🟡 Média</option>
+                <option value="baixa">🟢 Baixa</option>
+              </select>
+
+              {/* Hot filter */}
+              <button
+                onClick={() => setFilterHot(!filterHot)}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-all',
+                  filterHot
+                    ? 'bg-orange-500/20 border-orange-500/30 text-orange-400'
+                    : 'bg-white/[0.03] border-white/[0.06] text-white/40 hover:text-white/60',
+                )}
+              >
+                <Flame className="w-3.5 h-3.5" />
+                Hot Leads
+              </button>
+
+              {/* Stale filter */}
+              <button
+                onClick={() => setFilterStale(!filterStale)}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-all',
+                  filterStale
+                    ? 'bg-red-500/20 border-red-500/30 text-red-400'
+                    : 'bg-white/[0.03] border-white/[0.06] text-white/40 hover:text-white/60',
+                )}
+              >
+                <AlertTriangle className="w-3.5 h-3.5" />
+                Parados
+              </button>
+
+              {/* Clear */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-white/40 hover:text-white/70 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Limpar
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Kanban Columns */}
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -747,8 +968,8 @@ export default function KanbanBoard({ corretorId }: { corretorId: string }) {
           <KanbanColumn
             key={slug}
             slug={slug}
-            cards={board[slug] ?? []}
-            onCardClick={openDrawer}
+            cards={filterCards(board[slug] ?? [])}
+            onCardClick={navigateToLead}
             onDrop={(cardId, sourceColumn) => {
               handleMoveCard(cardId, sourceColumn, slug, board[slug]?.length ?? 0);
             }}
@@ -770,14 +991,6 @@ export default function KanbanBoard({ corretorId }: { corretorId: string }) {
         )}
       </AnimatePresence>
 
-      {/* Drawer CRM Hubspot-style */}
-      <LeadDrawer
-        card={selectedCard}
-        isOpen={drawerOpen}
-        onClose={closeDrawer}
-        corretorId={corretorId}
-        onUpdate={fetchBoard}
-      />
     </div>
   );
 }

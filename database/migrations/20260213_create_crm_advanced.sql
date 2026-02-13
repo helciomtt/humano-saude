@@ -8,6 +8,44 @@
 -- COMPATIBILIDADE: Mantém crm_cards como Kanban do corretor intacto
 -- =====================================================
 
+-- Extensão necessária para índice GIN com gin_trgm_ops
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- ========================================
+-- 0. DEPENDÊNCIA: operadoras (se não existir)
+-- ========================================
+CREATE TABLE IF NOT EXISTS public.operadoras (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL UNIQUE,
+  cnpj VARCHAR(18) UNIQUE,
+  ans_registro VARCHAR(20),
+  telefone VARCHAR(20),
+  email VARCHAR(255),
+  site VARCHAR(255),
+  endereco_rua VARCHAR(255),
+  endereco_numero VARCHAR(20),
+  endereco_complemento VARCHAR(100),
+  endereco_bairro VARCHAR(100),
+  endereco_cidade VARCHAR(100),
+  endereco_estado VARCHAR(2),
+  endereco_cep VARCHAR(10),
+  logo_url TEXT,
+  ativa BOOLEAN DEFAULT true,
+  comissao_padrao DECIMAL(5,2),
+  observacoes TEXT,
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_operadoras_nome ON operadoras(nome);
+CREATE INDEX IF NOT EXISTS idx_operadoras_ativa ON operadoras(ativa);
+
+DROP TRIGGER IF EXISTS update_operadoras_updated_at ON operadoras;
+CREATE TRIGGER update_operadoras_updated_at
+  BEFORE UPDATE ON operadoras
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- ========================================
 -- 1. TABELA: crm_pipelines (Pipelines configuráveis)
 -- ========================================
@@ -624,20 +662,33 @@ ALTER TABLE crm_workflows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE crm_workflow_executions ENABLE ROW LEVEL SECURITY;
 
 -- Pipelines/Stages: leitura pública (configuração global)
+DROP POLICY IF EXISTS "crm_pipelines_read" ON crm_pipelines;
 CREATE POLICY "crm_pipelines_read" ON crm_pipelines FOR SELECT USING (true);
+DROP POLICY IF EXISTS "crm_stages_read" ON crm_stages;
 CREATE POLICY "crm_stages_read" ON crm_stages FOR SELECT USING (true);
+DROP POLICY IF EXISTS "crm_products_read" ON crm_products;
 CREATE POLICY "crm_products_read" ON crm_products FOR SELECT USING (true);
 
 -- Service role pode tudo (backend usa service key)
+DROP POLICY IF EXISTS "crm_pipelines_service" ON crm_pipelines;
 CREATE POLICY "crm_pipelines_service" ON crm_pipelines FOR ALL USING (auth.role() = 'service_role');
+DROP POLICY IF EXISTS "crm_stages_service" ON crm_stages;
 CREATE POLICY "crm_stages_service" ON crm_stages FOR ALL USING (auth.role() = 'service_role');
+DROP POLICY IF EXISTS "crm_companies_service" ON crm_companies;
 CREATE POLICY "crm_companies_service" ON crm_companies FOR ALL USING (auth.role() = 'service_role');
+DROP POLICY IF EXISTS "crm_contacts_service" ON crm_contacts;
 CREATE POLICY "crm_contacts_service" ON crm_contacts FOR ALL USING (auth.role() = 'service_role');
+DROP POLICY IF EXISTS "crm_deals_service" ON crm_deals;
 CREATE POLICY "crm_deals_service" ON crm_deals FOR ALL USING (auth.role() = 'service_role');
+DROP POLICY IF EXISTS "crm_activities_service" ON crm_activities;
 CREATE POLICY "crm_activities_service" ON crm_activities FOR ALL USING (auth.role() = 'service_role');
+DROP POLICY IF EXISTS "crm_products_service" ON crm_products;
 CREATE POLICY "crm_products_service" ON crm_products FOR ALL USING (auth.role() = 'service_role');
+DROP POLICY IF EXISTS "crm_deal_products_service" ON crm_deal_products;
 CREATE POLICY "crm_deal_products_service" ON crm_deal_products FOR ALL USING (auth.role() = 'service_role');
+DROP POLICY IF EXISTS "crm_workflows_service" ON crm_workflows;
 CREATE POLICY "crm_workflows_service" ON crm_workflows FOR ALL USING (auth.role() = 'service_role');
+DROP POLICY IF EXISTS "crm_wf_exec_service" ON crm_workflow_executions;
 CREATE POLICY "crm_wf_exec_service" ON crm_workflow_executions FOR ALL USING (auth.role() = 'service_role');
 
 -- =====================================================

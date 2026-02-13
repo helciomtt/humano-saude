@@ -32,6 +32,10 @@ export const CRM_INTERACAO_TIPO = [
   'status_change',
   'nota_voz',
   'sistema',
+  'tarefa',
+  'follow_up',
+  'documento_enviado',
+  'visita',
 ] as const;
 export type CrmInteracaoTipo = (typeof CRM_INTERACAO_TIPO)[number];
 
@@ -124,6 +128,10 @@ export type CrmCardEnriched = CrmCard & {
     email: string | null;
     operadora_atual: string | null;
     valor_atual: number | null;
+    origem: string | null;
+    tipo_contratacao: string | null;
+    observacoes: string | null;
+    created_at: string | null;
   } | null;
   interacoes_count?: number;
   is_hot: boolean; // Interagiu com proposta nas últimas 24h
@@ -264,4 +272,83 @@ export type KanbanDragResult = {
   sourceColumn: KanbanColumnSlug;
   destinationColumn: KanbanColumnSlug;
   newPosition: number;
+};
+
+// ========================================
+// CRM CARD DETAIL (Página dedicada)
+// ========================================
+
+export type CrmTaskStatus = 'pendente' | 'em_andamento' | 'concluida' | 'cancelada';
+export type CrmTaskPriority = 'baixa' | 'media' | 'alta' | 'urgente';
+
+export type CrmTask = {
+  id: string;
+  card_id: string;
+  corretor_id: string;
+  titulo: string;
+  descricao: string | null;
+  tipo: CrmInteracaoTipo;
+  status: CrmTaskStatus;
+  prioridade: CrmTaskPriority;
+  data_vencimento: string | null;
+  data_conclusao: string | null;
+  lembrete_em: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CrmTaskInsert = Omit<CrmTask, 'id' | 'created_at' | 'updated_at'>;
+export type CrmTaskUpdate = Partial<Omit<CrmTask, 'id' | 'created_at'>>;
+
+export type CrmCardFile = {
+  id: string;
+  card_id: string;
+  corretor_id: string;
+  nome: string;
+  tipo_arquivo: string;
+  tamanho_bytes: number | null;
+  url: string;
+  categoria: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+};
+
+export type CrmCardFileInsert = Omit<CrmCardFile, 'id' | 'created_at'>;
+
+export type CrmCardComment = {
+  id: string;
+  card_id: string;
+  corretor_id: string;
+  texto: string;
+  is_pinned: boolean;
+  parent_id: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  // Enriched
+  corretor_nome?: string;
+  corretor_foto?: string | null;
+  replies?: CrmCardComment[];
+};
+
+export type CrmCardCommentInsert = Omit<CrmCardComment, 'id' | 'created_at' | 'corretor_nome' | 'corretor_foto' | 'replies'>;
+
+export type CrmCardFullDetail = CrmCardEnriched & {
+  interacoes: CrmInteracao[];
+  tasks: CrmTask[];
+  files: CrmCardFile[];
+  comments: CrmCardComment[];
+  stage_history: Array<{
+    id: string;
+    status_anterior: string | null;
+    status_novo: string | null;
+    created_at: string;
+  }>;
+  corretor?: {
+    id: string;
+    nome: string;
+    foto_url: string | null;
+    email: string | null;
+    whatsapp: string | null;
+  } | null;
 };

@@ -160,6 +160,7 @@ export const sidebarItems: SidebarItem[] = [
       { id: 'crm-pipeline', label: 'Pipeline Kanban', icon: Columns3, href: `${P}/crm`, badge: { text: 'NOVO', variant: 'gold' } },
       { id: 'crm-contacts', label: 'Contatos', icon: UserPlus, href: `${P}/crm/contacts` },
       { id: 'crm-companies', label: 'Empresas', icon: Building2, href: `${P}/crm/companies` },
+      { id: 'crm-planos', label: 'Tabela de Preços', icon: Receipt, href: `${P}/planos` },
       { id: 'crm-analytics', label: 'Analytics CRM', icon: BarChart3, href: `${P}/crm/analytics` },
     ],
   },

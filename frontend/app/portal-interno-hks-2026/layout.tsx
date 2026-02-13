@@ -2,6 +2,7 @@
 
 import DockSidebar from '../components/DockSidebar';
 import { Toaster } from '@/components/ui/sonner';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 export default function DashboardLayout({
   children,
@@ -45,8 +46,13 @@ export default function DashboardLayout({
 
       {/* Main Content - Com margem para a sidebar */}
       <div className="relative z-10 transition-all duration-300 lg:ml-20">
+        {/* Top Bar — Notification Bell */}
+        <div className="flex items-center justify-end px-4 lg:px-6 pt-4 lg:pt-5">
+          <NotificationBell corretorId="admin" />
+        </div>
+
         {/* Page Content */}
-        <main className="p-4 lg:p-6">{children}</main>
+        <main className="p-4 lg:p-6 pt-2 lg:pt-3">{children}</main>
       </div>
       
       {/* Toast Notifications */}
