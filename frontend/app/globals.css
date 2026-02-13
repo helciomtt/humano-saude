@@ -1,0 +1,412 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Fonte Perpetua Titling MT (fallback para serif se não disponível) */
+@font-face {
+  font-family: 'Perpetua Titling MT';
+  src: local('Perpetua Titling MT'), local('PerpetuaTitlingMT');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-heading: var(--font-perpetua);
+  
+  /* Cores da Marca Humano Saúde - Private Banking / Luxo */
+  --color-gold-400: #F6E05E;     /* Dourado Claro */
+  --color-gold-500: #D4AF37;     /* Dourado Real - Gold Premium */
+  --color-gold-600: #AA8A2E;     /* Dourado Escuro */
+  --color-brand-black: #050505;  /* Black Piano Premium */
+  --color-brand-white: #FFFFFF;  /* Branco Puro */
+  
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --font-perpetua: 'Perpetua Titling MT', serif;
+  
+  /* Cores Humano Saúde - Private Banking / Luxo - Tema Claro */
+  --background: oklch(1 0 0); /* Branco */
+  --foreground: oklch(0.145 0 0); /* Preto */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  
+  /* Primary: Dourado Real (#D4AF37) - Gold Premium */
+  --primary: oklch(0.745 0.091 85.874); /* Dourado #D4AF37 */
+  --primary-foreground: oklch(0.05 0 0); /* Preto para contraste */
+  
+  /* Secondary: Dourado Claro (#F6E05E) */
+  --secondary: oklch(0.885 0.131 95.276); /* Dourado Claro #F6E05E */
+  --secondary-foreground: oklch(0.05 0 0);
+  
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  
+  /* Accent: Dourado Real com mais luminosidade */
+  --accent: oklch(0.845 0.111 85.874);
+  --accent-foreground: oklch(0.05 0 0);
+  
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.745 0.091 85.874); /* Dourado para ring */
+  
+  /* Charts: Gradiente Dourado */
+  --chart-1: oklch(0.745 0.091 85.874); /* Dourado Real */
+  --chart-2: oklch(0.885 0.131 95.276); /* Dourado Claro */
+  --chart-3: oklch(0.645 0.071 85.874); /* Dourado Escuro */
+  --chart-4: oklch(0.945 0.051 95.276); /* Dourado Muito Claro */
+  --chart-5: oklch(0.545 0.051 85.874); /* Dourado Muito Escuro */
+  
+  /* Sidebar */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.745 0.091 85.874); /* Dourado */
+  --sidebar-primary-foreground: oklch(0.05 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  /* Black Piano Premium (#050505) - Private Banking */
+  --background: oklch(0.05 0 0); /* #050505 */
+  --foreground: oklch(0.985 0 0); /* Branco */
+  --card: oklch(0.08 0 0); /* Card levemente mais claro */
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.08 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  
+  /* Primary: Dourado Real (#D4AF37) - Gold Premium */
+  --primary: oklch(0.745 0.091 85.874); /* Dourado Real */
+  --primary-foreground: oklch(0.05 0 0);
+  
+  /* Secondary: Dourado Claro (#F6E05E) */
+  --secondary: oklch(0.885 0.131 95.276); /* Dourado Claro */
+  --secondary-foreground: oklch(0.05 0 0);
+  
+  --muted: oklch(0.15 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  
+  /* Accent: Dourado brilhante para destaque */
+  --accent: oklch(0.845 0.111 85.874); /* Dourado luminoso */
+  --accent-foreground: oklch(0.05 0 0);
+  
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.745 0.091 85.874); /* Dourado para focus */
+  
+  /* Charts: Gradiente Dourado Escuro → Dourado Claro → Branco */
+  --chart-1: oklch(0.745 0.091 85.874); /* Dourado Real */
+  --chart-2: oklch(0.885 0.131 95.276); /* Dourado Claro */
+  --chart-3: oklch(0.945 0.051 95.276); /* Dourado Muito Claro */
+  --chart-4: oklch(0.645 0.071 85.874); /* Dourado Escuro */
+  --chart-5: oklch(0.985 0.021 95.276); /* Quase branco com hint dourado */
+  
+  /* Sidebar Dark com Gold Premium */
+  --sidebar: oklch(0.08 0 0); /* Levemente mais claro que background */
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.745 0.091 85.874); /* Dourado Real */
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.15 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.745 0.091 85.874);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    position: relative;
+    overflow-x: hidden;
+  }
+  
+  /* Black Piano com Mesh Gradient de Seda Dourada */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(246, 224, 94, 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(170, 138, 46, 0.05) 0%, transparent 60%),
+      #050505;
+    animation: meshMove 15s ease-in-out infinite;
+  }
+  
+  /* Dot Pattern sutil para adicionar textura */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.03;
+    background-image: radial-gradient(circle, rgba(212, 175, 55, 0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+}
+
+/* Mesh Gradient Animation - Movimento Sutil de Seda */
+@keyframes meshMove {
+  0%, 100% {
+    background-position: 0% 0%, 100% 100%, 50% 50%;
+  }
+  33% {
+    background-position: 30% 20%, 70% 80%, 40% 60%;
+  }
+  66% {
+    background-position: 70% 30%, 30% 70%, 60% 40%;
+  }
+}
+
+/* Glassmorphism Premium */
+.glass-gold {
+  background: rgba(212, 175, 55, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.37),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-dark {
+  background: rgba(5, 5, 5, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Border Beam Effect */
+@keyframes borderBeam {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.border-beam {
+  position: relative;
+  overflow: hidden;
+}
+
+.border-beam::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212, 175, 55, 0.8),
+    transparent
+  );
+  animation: borderBeam 3s linear infinite;
+  border-radius: inherit;
+}
+
+/* Scroll Reveal Animation */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.scroll-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Smooth Scroll Behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Animações Hero */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(5px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
+}
+
+.delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* ============================================
+   SCROLLBAR PREMIUM - Dark Theme
+   ============================================ */
+
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 100px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.4);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Sidebar scrollbar - extra slim */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.15);
+  border-radius: 100px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.35);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 175, 55, 0.2) transparent;
+}

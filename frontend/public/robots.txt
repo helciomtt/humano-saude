@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /portal-interno-hks-2026/
+Disallow: /admin-login
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /dashboard/
+
+Sitemap: https://humanosaude.com.br/sitemap.xml

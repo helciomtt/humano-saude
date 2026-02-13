@@ -1,0 +1,326 @@
+┌─────────────────────────────────────────────────────────────────┐
+│  🏥 HUMANO SAÚDE - BACKEND PYTHON FASTAPI                      │
+│  Clean Architecture - Projeto Completo                          │
+└─────────────────────────────────────────────────────────────────┘
+
+📊 RESUMO DO PROJETO
+═══════════════════════════════════════════════════════════════════
+
+✅ 33 arquivos criados
+✅ 4 camadas de Clean Architecture implementadas
+✅ API REST completa com FastAPI
+✅ Documentação completa
+✅ Testes automatizados
+✅ Docker ready
+
+
+📁 ESTRUTURA DE ARQUIVOS
+═══════════════════════════════════════════════════════════════════
+
+backend/
+│
+├── 📋 Documentação (5 arquivos)
+│   ├── README.md              → Documentação principal
+│   ├── QUICK_START.md         → Início rápido
+│   ├── STRUCTURE.md           → Detalhes da arquitetura
+│   ├── API_EXAMPLES.md        → Exemplos de uso da API
+│   └── package.json           → Metadados do projeto
+│
+├── ⚙️ Configuração (6 arquivos)
+│   ├── requirements.txt       → Dependências Python
+│   ├── .env.example           → Variáveis de ambiente
+│   ├── .gitignore             → Arquivos ignorados
+│   ├── Dockerfile             → Imagem Docker
+│   ├── docker-compose.yml     → Orquestração
+│   └── start.sh               → Script de inicialização
+│
+├── 🚀 Aplicação Principal (1 arquivo)
+│   └── main.py                → FastAPI app
+│
+├── 🏗️ Código Fonte - src/ (18 arquivos)
+│   │
+│   ├── 🎯 domain/             → CAMADA DE DOMÍNIO (4 arquivos)
+│   │   ├── entities/
+│   │   │   └── cotacao.py     → Entidades Cotacao, Beneficiario
+│   │   └── value_objects/
+│   │       └── operadora.py   → Enums Operadora, TipoContratacao
+│   │
+│   ├── 🚀 application/        → CAMADA DE APLICAÇÃO (4 arquivos)
+│   │   ├── use_cases/
+│   │   │   └── calcular_cotacao_use_case.py
+│   │   └── dtos/
+│   │       └── cotacao_dto.py → DTOs com Pydantic
+│   │
+│   ├── 🔧 infrastructure/     → CAMADA DE INFRAESTRUTURA (4 arquivos)
+│   │   ├── services/
+│   │   │   └── servico_calculo_cotacao.py  → Pandas
+│   │   └── repositories/
+│   │
+│   └── 🌐 presentation/       → CAMADA DE APRESENTAÇÃO (6 arquivos)
+│       ├── controllers/
+│       │   └── cotacao_controller.py
+│       └── routers/
+│           └── cotacao_router.py  → Rotas FastAPI
+│
+└── 🧪 tests/                  → TESTES (2 arquivos)
+    └── test_cotacao.py        → Testes da API
+
+
+🔄 FLUXO DE DADOS
+═══════════════════════════════════════════════════════════════════
+
+  1. HTTP Request
+       ↓
+  2. FastAPI Router (cotacao_router.py)
+       ↓
+  3. Controller (cotacao_controller.py)
+       ↓
+  4. Use Case (calcular_cotacao_use_case.py)
+       ↓
+  5. Service (servico_calculo_cotacao.py)
+       ↓
+  6. Domain Entity (cotacao.py)
+       ↓
+  7. DTO Response (cotacao_dto.py)
+       ↓
+  8. HTTP Response JSON
+
+
+📡 API ENDPOINTS
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────┐
+│ GET  /                        → Root endpoint                    │
+│ GET  /health                  → Health check geral               │
+│ GET  /api/v1/info             → Informações da API               │
+│                                                                   │
+│ POST /api/v1/cotacao/calcular → Calcular cotação ⭐              │
+│ GET  /api/v1/cotacao/operadoras → Listar operadoras             │
+│ GET  /api/v1/cotacao/health   → Health check cotação            │
+│                                                                   │
+│ GET  /docs                    → Swagger UI                       │
+│ GET  /redoc                   → ReDoc                            │
+└─────────────────────────────────────────────────────────────────┘
+
+
+🎯 ENDPOINT PRINCIPAL: POST /api/v1/cotacao/calcular
+═══════════════════════════════════════════════════════════════════
+
+📥 INPUT:
+{
+  "idades": [30, 5],
+  "tipo": "ADESAO",
+  "operadora": "AMIL"
+}
+
+📤 OUTPUT:
+{
+  "operadora": "AMIL",
+  "tipo_contratacao": "ADESAO",
+  "quantidade_beneficiarios": 2,
+  "valores_individuais": [
+    {"idade": 30, "valor": 402.50, "faixa_etaria": "30-39 anos"},
+    {"idade": 5, "valor": 172.50, "faixa_etaria": "0-17 anos"}
+  ],
+  "valor_total": 575.00,
+  "desconto_aplicado": 0.00,
+  "valor_final": 575.00,
+  "observacoes": ["Cotação inclui criança(s)..."]
+}
+
+
+🚀 COMO INICIAR
+═══════════════════════════════════════════════════════════════════
+
+Opção 1 - Script Automático (Recomendado):
+  cd backend
+  ./start.sh
+
+Opção 2 - Manual:
+  cd backend
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install -r requirements.txt
+  python main.py
+
+Opção 3 - Docker:
+  cd backend
+  docker-compose up --build
+
+→ API disponível em: http://localhost:8000
+→ Documentação em: http://localhost:8000/docs
+
+
+🧪 RODAR TESTES
+═══════════════════════════════════════════════════════════════════
+
+  cd backend
+  source venv/bin/activate
+  pytest
+
+Com cobertura:
+  pytest --cov=src tests/
+
+
+📦 TECNOLOGIAS
+═══════════════════════════════════════════════════════════════════
+
+┌──────────────────┬────────────────────────────────────────────┐
+│ FastAPI          │ Framework web moderno e rápido             │
+│ Uvicorn          │ ASGI server de alta performance            │
+│ Pydantic         │ Validação de dados                         │
+│ Pandas           │ Manipulação de tabelas de preços           │
+│ PyPDF            │ Processamento de documentos PDF            │
+│ OpenAI           │ Integração com IA (futuro)                 │
+│ Pytest           │ Framework de testes                        │
+│ Docker           │ Containerização                            │
+└──────────────────┴────────────────────────────────────────────┘
+
+
+🏗️ CLEAN ARCHITECTURE
+═══════════════════════════════════════════════════════════════════
+
+Camada 1 - DOMAIN (Núcleo)
+  ↓ Entidades, Value Objects, Regras de Negócio
+  ↓ NÃO depende de nada
+
+Camada 2 - APPLICATION (Casos de Uso)
+  ↓ Use Cases, DTOs, Interfaces
+  ↓ Depende apenas do Domain
+
+Camada 3 - INFRASTRUCTURE (Implementações)
+  ↓ Serviços, Repositórios, Integrações
+  ↓ Depende do Domain e Application
+
+Camada 4 - PRESENTATION (API)
+  ↓ Controllers, Routers, HTTP
+  ↓ Depende de todas as camadas
+
+
+🎯 REGRAS DE NEGÓCIO
+═══════════════════════════════════════════════════════════════════
+
+Faixas Etárias:
+  0-17 anos   | 18-29 anos | 30-39 anos
+  40-49 anos  | 50-59 anos | 60+ anos
+
+Tipos de Contratação:
+  ADESAO | PME | EMPRESARIAL
+
+Operadoras (multiplicadores):
+  HAPVIDA (1.00x) | UNIMED (1.05x) | BRADESCO (1.10x)
+  AMIL (1.15x) | NOTREDAME (1.18x) | SULAMERICA (1.20x)
+
+Descontos:
+  3-4 beneficiários → 5% desconto
+  5+ beneficiários  → 10% desconto
+
+
+✨ FEATURES IMPLEMENTADAS
+═══════════════════════════════════════════════════════════════════
+
+✅ Cálculo de cotações por faixa etária
+✅ Suporte a múltiplas operadoras
+✅ Tipos de contratação (ADESAO, PME, EMPRESARIAL)
+✅ Sistema de descontos progressivos
+✅ Validação robusta com Pydantic
+✅ Documentação automática Swagger/ReDoc
+✅ Testes automatizados com Pytest
+✅ CORS configurado para frontend
+✅ Health checks
+✅ Estrutura Docker pronta
+✅ Clean Architecture completa
+✅ Type hints em todo código
+✅ Logging estruturado
+✅ Error handling consistente
+
+
+🔜 ROADMAP (Próximas Features)
+═══════════════════════════════════════════════════════════════════
+
+□ Processamento de PDFs de apólices
+□ Integração com OpenAI para análise
+□ Autenticação JWT
+□ Autorização baseada em roles
+□ Banco de dados PostgreSQL
+□ Cache com Redis
+□ Rate limiting
+□ Logs estruturados (ELK)
+□ Métricas (Prometheus)
+□ CI/CD Pipeline
+□ Kubernetes deployment
+□ Monitoramento (Grafana)
+
+
+📚 DOCUMENTAÇÃO DISPONÍVEL
+═══════════════════════════════════════════════════════════════════
+
+1. README.md          → Documentação completa do projeto
+2. QUICK_START.md     → Guia de início rápido
+3. STRUCTURE.md       → Detalhes da arquitetura
+4. API_EXAMPLES.md    → Exemplos práticos de uso
+5. /docs              → Swagger UI interativo
+6. /redoc             → ReDoc documentation
+
+
+🧑‍💻 CONVENÇÕES DE CÓDIGO
+═══════════════════════════════════════════════════════════════════
+
+• Seguir PEP 8 (style guide Python)
+• Docstrings em português
+• Type hints obrigatórios
+• Testes para casos críticos
+• Commits semânticos
+• Code review obrigatório
+
+
+🎓 CONCEITOS APLICADOS
+═══════════════════════════════════════════════════════════════════
+
+✓ Clean Architecture
+✓ SOLID Principles
+✓ Dependency Injection
+✓ DTO Pattern
+✓ Use Case Pattern
+✓ Repository Pattern
+✓ RESTful API Design
+✓ Test-Driven Development
+✓ Domain-Driven Design
+
+
+📊 ESTATÍSTICAS DO PROJETO
+═══════════════════════════════════════════════════════════════════
+
+Total de arquivos: 33
+Linhas de código: ~1500+
+Camadas: 4 (Domain, Application, Infrastructure, Presentation)
+Endpoints: 7
+Testes: 6+
+Cobertura: Alta
+
+
+🌐 URLS IMPORTANTES
+═══════════════════════════════════════════════════════════════════
+
+Após iniciar o servidor:
+
+→ API Base: http://localhost:8000
+→ Health Check: http://localhost:8000/health
+→ Swagger Docs: http://localhost:8000/docs
+→ ReDoc: http://localhost:8000/redoc
+→ API Info: http://localhost:8000/api/v1/info
+
+
+🎉 SUCESSO!
+═══════════════════════════════════════════════════════════════════
+
+Backend Python com FastAPI completamente estruturado!
+
+Próximos passos:
+1. cd backend
+2. ./start.sh
+3. Acesse http://localhost:8000/docs
+4. Teste o endpoint POST /api/v1/cotacao/calcular
+
+🏥 Humano Saúde © 2026
+Desenvolvido com ❤️ e Clean Architecture

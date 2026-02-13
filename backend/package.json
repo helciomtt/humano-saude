@@ -1,0 +1,21 @@
+{
+  "name": "humano-saude-backend",
+  "version": "1.0.0",
+  "description": "Backend Python com FastAPI para Humano Saúde",
+  "scripts": {
+    "start": "python main.py",
+    "dev": "uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "test": "pytest",
+    "test:coverage": "pytest --cov=src tests/",
+    "lint": "flake8 src/",
+    "format": "black src/"
+  },
+  "keywords": [
+    "fastapi",
+    "python",
+    "clean-architecture",
+    "health-insurance"
+  ],
+  "author": "Humano Saúde",
+  "license": "PROPRIETARY"
+}
