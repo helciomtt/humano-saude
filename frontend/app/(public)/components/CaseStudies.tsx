@@ -3,25 +3,25 @@
 export default function CaseStudies() {
   const cases = [
     {
-      tipo: 'PLANO EMPRESARIAL',
+      tipo: 'Plano Empresarial',
       custoAnterior: 'R$ 5.840,00',
       novoCusto: 'R$ 3.120,00',
-      reducao: '46% de Redução',
-      extra: 'Mesma Rede Hospitalar',
+      reducao: '46% de redução',
+      extra: 'Mesma rede hospitalar',
     },
     {
-      tipo: 'PLANO FAMILIAR',
+      tipo: 'Plano Familiar',
       custoAnterior: 'R$ 3.200,00',
       novoCusto: 'R$ 1.950,00',
-      reducao: '39% de Redução',
-      extra: 'Upgrade de Rede Samaritano',
+      reducao: '39% de redução',
+      extra: 'Upgrade de rede Samaritano',
     },
     {
-      tipo: 'PLANO INDIVIDUAL',
+      tipo: 'Plano Individual',
       custoAnterior: 'R$ 1.100,00',
       novoCusto: 'R$ 680,00',
-      reducao: '40% de Redução',
-      extra: 'Migração sem novas Carências',
+      reducao: '40% de redução',
+      extra: 'Migração sem novas carências',
     },
   ];
 
@@ -29,17 +29,17 @@ export default function CaseStudies() {
     <section id="pratica" className="py-20 sm:py-32 bg-black text-center">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-[1.1]">
-          Análise <span className="text-gold-400">Na Prática</span>
+          Análise <span className="text-[#B8941F]">na prática</span>
         </h2>
         <p className="text-gray-400 text-lg tracking-widest uppercase font-medium mb-24">
-          Como transformamos despesa em economia real
+          como transformamos despesa em economia real
         </p>
 
         <div className="grid md:grid-cols-3 gap-12 text-left mb-20">
           {cases.map((item, i) => (
             <div
               key={i}
-              className="bg-white/5 p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[3.5rem] border border-white/10 hover:border-gold-400/30 transition-all hover:-translate-y-2"
+              className="bg-white/5 p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[3.5rem] border border-white/10 hover:border-[#B8941F]/30 transition-all hover:-translate-y-2"
             >
               <p className="text-xs font-bold text-gray-400 uppercase tracking-[3px] mb-8 italic">
                 {item.tipo}
@@ -47,17 +47,17 @@ export default function CaseStudies() {
               
               <div className="space-y-6 mb-10">
                 <div>
-                  <p className="text-[11px] text-gray-500 uppercase font-bold mb-1">Custo Anterior</p>
+                  <p className="text-[11px] text-gray-500 uppercase font-bold mb-1">Custo anterior</p>
                   <p className="text-2xl text-gray-500 line-through font-bold tracking-tight">{item.custoAnterior}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-white font-black uppercase tracking-widest mb-1">Novo Custo Humano</p>
+                  <p className="text-xs text-white font-black uppercase tracking-widest mb-1">Custo com inteligência <span className="text-[#B8941F]">Humano</span></p>
                   <p className="text-4xl text-white font-black tracking-tighter">{item.novoCusto}</p>
                 </div>
               </div>
 
-              <div className="pt-8 border-t-2 border-gold-400 flex flex-col gap-4">
-                <div className="bg-gold-400 text-black py-2.5 px-6 rounded-full text-xs font-black uppercase tracking-widest text-center">
+              <div className="pt-8 border-t-2 border-[#B8941F] flex flex-col gap-4">
+                <div className="bg-[#B8941F] text-white py-2.5 px-6 rounded-full text-xs font-black uppercase tracking-widest text-center">
                   {item.reducao}
                 </div>
                 <p className="text-[11px] text-gray-400 text-center font-bold italic uppercase">
@@ -69,13 +69,13 @@ export default function CaseStudies() {
         </div>
 
         <a
-          href="https://wa.me/5521988179407?text=Olá!%20Desejo%20Simular%20minha%20Economia%20Real."
-          className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-500 text-black px-12 py-5 rounded-xl text-sm uppercase tracking-widest font-black transition-all hover:-translate-y-0.5"
+          href="#calculadora"
+          className="inline-flex items-center gap-2 bg-[#B8941F] hover:bg-[#A07E18] text-white px-12 py-5 rounded-xl text-sm uppercase tracking-widest font-black transition-all hover:-translate-y-0.5"
         >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.417-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.52.909 3.033 1.389 4.625 1.39 5.313 0 9.636-4.322 9.638-9.634.001-2.574-1.001-4.995-2.823-6.818-1.821-1.822-4.241-2.826-6.816-2.827-5.313 0-9.636 4.323-9.638 9.636-.001 1.761.474 3.483 1.378 5.008l-.995 3.633 3.731-.978zm10.748-6.377c-.283-.141-1.669-.824-1.928-.918-.258-.094-.446-.141-.634.141-.188.281-.727.918-.891 1.104-.164.187-.328.21-.611.069-.283-.141-1.194-.441-2.274-1.405-.841-.75-1.408-1.676-1.573-1.958-.164-.282-.018-.434.123-.574.127-.127.283-.329.424-.494.141-.164.188-.282.283-.47.094-.188.047-.353-.023-.494-.071-.141-.634-1.529-.868-2.094-.229-.553-.46-.478-.634-.487-.164-.007-.353-.008-.542-.008s-.494.07-.753.353c-.259.282-.988.965-.988 2.353s1.012 2.729 1.153 2.917c.141.188 1.992 3.041 4.825 4.264.674.291 1.2.464 1.61.594.677.215 1.293.185 1.781.112.544-.081 1.669-.682 1.904-1.341.235-.659.235-1.223.164-1.341-.07-.117-.258-.188-.541-.329z"/>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25v-.008zm2.25-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H12.75v-.008zm0 2.25h.008v.008H12.75v-.008zm2.25-6.75h.008v.008H15v-.008zm0 2.25h.008v.008H15v-.008zm0 2.25h.008v.008H15v-.008zm0 2.25h.008v.008H15v-.008zM4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
           </svg>
-          Simular Redução
+          Simular minha redução
         </a>
       </div>
     </section>
