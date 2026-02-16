@@ -6,10 +6,14 @@ import type { CalculadoraState, Beneficiario, PlanoResultado } from './Calculato
 export default function Calculator() {
   const [state, setState] = useState<CalculadoraState>({
     step: 1,
+    intencao: '',
+    perfilCnpj: '',
     tipoContrato: '',
     cnpj: '',
     acomodacao: '',
     beneficiarios: [{ id: 0, idade: '' }],
+    usaBypass: false,
+    qtdVidasEstimada: '',
     bairro: '',
     nome: '',
     email: '',
@@ -59,13 +63,13 @@ export default function Calculator() {
   return (
     <section className="py-16 bg-white">
       <div className="max-w-4xl mx-auto px-6">
-        <h2 className="text-4xl font-black text-center mb-12 font-cinzel leading-[1.1]">
-          Calculadora <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">Inteligente</span>
+        <h2 className="text-4xl font-black text-gray-900 text-center mb-12 font-cinzel leading-[1.1]">
+          Calculadora <span className="bg-gold-400 bg-clip-text text-transparent">Inteligente</span>
         </h2>
         
         {state.isLoading && (
           <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-[#bf953f]"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-gold-400"></div>
             <p className="mt-4 text-gray-600">Consultando valores oficiais...</p>
           </div>
         )}
@@ -80,7 +84,7 @@ export default function Calculator() {
                     <p className="text-gray-500">{plano.operadora}</p>
                   </div>
                   {i === 0 && (
-                    <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] text-white px-4 py-2 rounded-full text-sm font-bold">
+                    <span className="bg-gold-400 text-white px-4 py-2 rounded-full text-sm font-bold">
                       🥇 Melhor Opção
                     </span>
                   )}
@@ -89,21 +93,21 @@ export default function Calculator() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                   <div className="text-center bg-white p-3 rounded-lg">
                     <p className="text-xs text-gray-400 mb-1">Abrangência</p>
-                    <p className="font-semibold text-sm">{plano.abrangencia}</p>
+                    <p className="font-semibold text-gray-900 text-sm">{plano.abrangencia}</p>
                   </div>
                   <div className="text-center bg-white p-3 rounded-lg">
                     <p className="text-xs text-gray-400 mb-1">Coparticipação</p>
-                    <p className="font-semibold text-sm text-orange-600">{plano.coparticipacao}</p>
+                    <p className="font-semibold text-gray-900 text-sm">{plano.coparticipacao}</p>
                   </div>
                   <div className="text-center bg-white p-3 rounded-lg">
                     <p className="text-xs text-gray-400 mb-1">Reembolso</p>
-                    <p className="font-semibold text-sm">{plano.reembolso}</p>
+                    <p className="font-semibold text-gray-900 text-sm">{plano.reembolso}</p>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] text-white p-6 rounded-2xl text-center">
+                <div className="bg-gold-400 text-white p-6 rounded-2xl text-center">
                   <p className="text-sm mb-2">Valor Estimado Mensal</p>
-                  <p className="text-4xl font-black">
+                  <p className="text-4xl font-black text-white">
                     R$ {plano.valorTotal.toFixed(2).replace('.', ',')}
                   </p>
                 </div>
@@ -127,7 +131,7 @@ export default function Calculator() {
             <p className="text-gray-600">Calculadora em desenvolvimento...</p>
             <button
               onClick={calcularPlanos}
-              className="mt-4 bg-gradient-to-r from-[#bf953f] to-[#aa771c] text-white px-8 py-3 rounded-xl font-bold"
+              className="mt-4 bg-gold-400 text-white px-8 py-3 rounded-xl font-bold"
             >
               Testar Cálculo
             </button>

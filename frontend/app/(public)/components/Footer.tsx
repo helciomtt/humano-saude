@@ -25,7 +25,7 @@ export default function Footer() {
                 href="https://instagram.com/humanosaude"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#bf953f] transition-colors"
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-gold-400 transition-colors"
                 aria-label="Instagram"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -37,28 +37,28 @@ export default function Footer() {
 
           {/* Column 2: Contact */}
           <div>
-            <h3 className="text-lg font-bold mb-6 text-[#bf953f] font-cinzel">
+            <h3 className="text-lg font-bold mb-6 text-gold-400">
               Contato
             </h3>
             <ul className="space-y-4 text-sm">
               <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-[#bf953f] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-gold-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <a href="https://wa.me/5521988179407" className="text-gray-400 hover:text-[#bf953f] transition-colors">
+                <a href="https://wa.me/5521988179407" className="text-gray-400 hover:text-gold-400 transition-colors">
                   (21) 98817-9407
                 </a>
               </li>
               <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-[#bf953f] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-gold-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <a href="mailto:comercial@humanosaude.com.br" className="text-gray-400 hover:text-[#bf953f] transition-colors">
+                <a href="mailto:comercial@humanosaude.com.br" className="text-gray-400 hover:text-gold-400 transition-colors">
                   comercial@humanosaude.com.br
                 </a>
               </li>
               <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-[#bf953f] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-gold-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -71,32 +71,32 @@ export default function Footer() {
 
           {/* Column 3: Quick Links */}
           <div>
-            <h3 className="text-lg font-bold mb-6 text-[#bf953f] font-cinzel">
+            <h3 className="text-lg font-bold mb-6 text-gold-400">
               Links Rápidos
             </h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <Link href="#ia" className="text-gray-400 hover:text-[#bf953f] transition-colors">
+                <Link href="#ia" className="text-gray-400 hover:text-gold-400 transition-colors">
                   Tecnologia IA
                 </Link>
               </li>
               <li>
-                <Link href="#pratica" className="text-gray-400 hover:text-[#bf953f] transition-colors">
+                <Link href="#pratica" className="text-gray-400 hover:text-gold-400 transition-colors">
                   Resultados Reais
                 </Link>
               </li>
               <li>
-                <Link href="#metodo" className="text-gray-400 hover:text-[#bf953f] transition-colors">
+                <Link href="#metodo" className="text-gray-400 hover:text-gold-400 transition-colors">
                   Método Tríade
                 </Link>
               </li>
               <li>
-                <Link href="#depoimentos" className="text-gray-400 hover:text-[#bf953f] transition-colors">
+                <Link href="#depoimentos" className="text-gray-400 hover:text-gold-400 transition-colors">
                   Depoimentos
                 </Link>
               </li>
               <li>
-                <Link href="#duvidas" className="text-gray-400 hover:text-[#bf953f] transition-colors">
+                <Link href="#duvidas" className="text-gray-400 hover:text-gold-400 transition-colors">
                   Dúvidas Frequentes
                 </Link>
               </li>

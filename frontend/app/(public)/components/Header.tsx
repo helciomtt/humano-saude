@@ -38,7 +38,7 @@ export default function Header() {
   return (
     <>
       {/* ✅ Banner Dourado Fixo */}
-      <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-[#bf953f] via-[#aa771c] to-[#bf953f] border-b border-white/10 overflow-clip">
+      <div className="fixed top-0 left-0 right-0 z-[9999] bg-gold-400 border-b border-white/10 overflow-clip">
         <div className="animate-marquee whitespace-nowrap py-2.5 w-max">
           <span className="inline-block text-xs font-bold text-white tracking-widest px-8">
             ✦ HUMANO SAÚDE: ANALISAR, ASSESSORAR E ACOMPANHAR
@@ -99,7 +99,7 @@ export default function Header() {
               href="https://wa.me/5521988179407?text=Olá!"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#bf953f] to-[#aa771c] text-white rounded text-xs uppercase font-black tracking-widest shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+              className="hidden lg:inline-flex items-center px-6 py-3 bg-gold-400 text-white rounded text-xs uppercase font-black tracking-widest shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
             >
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.417-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.52.909 3.033 1.389 4.625 1.39 5.313 0 9.636-4.322 9.638-9.634.001-2.574-1.001-4.995-2.823-6.818-1.821-1.822-4.241-2.826-6.816-2.827-5.313 0-9.636 4.323-9.638 9.636-.001 1.761.474 3.483 1.378 5.008l-.995 3.633 3.731-.978zm10.748-6.377c-.283-.141-1.669-.824-1.928-.918-.258-.094-.446-.141-.634.141-.188.281-.727.918-.891 1.104-.164.187-.328.21-.611.069-.283-.141-1.194-.441-2.274-1.405-.841-.75-1.408-1.676-1.573-1.958-.164-.282-.018-.434.123-.574.127-.127.283-.329.424-.494.141-.164.188-.282.283-.47.094-.188.047-.353-.023-.494-.071-.141-.634-1.529-.868-2.094-.229-.553-.46-.478-.634-.487-.164-.007-.353-.008-.542-.008s-.494.07-.753.353c-.259.282-.988.965-.988 2.353s1.012 2.729 1.153 2.917c.141.188 1.992 3.041 4.825 4.264.674.291 1.2.464 1.61.594.677.215 1.293.185 1.781.112.544-.081 1.669-.682 1.904-1.341.235-.659.235-1.223.164-1.341-.07-.117-.258-.188-.541-.329z"/>
@@ -139,7 +139,7 @@ export default function Header() {
             <button
               key={item.section}
               onClick={() => scrollToSection(item.section)}
-              className="text-white text-2xl font-bold uppercase tracking-widest hover:text-[#bf953f] transition-colors"
+              className="text-white text-2xl font-bold uppercase tracking-widest hover:text-gold-400 transition-colors"
             >
               {item.label}
             </button>

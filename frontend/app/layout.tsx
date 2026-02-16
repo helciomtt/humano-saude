@@ -78,6 +78,9 @@ export default function RootLayout({
         {/* Google Tag Manager */}
         <GoogleTagManager />
         
+        {/* Contentsquare UX Analytics */}
+        <script src="https://t.contentsquare.net/uxa/bf79baf35fb2a.js" async />
+
         <Suspense fallback={null}>
           <MetaPixel />
         </Suspense>

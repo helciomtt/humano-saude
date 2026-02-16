@@ -27,28 +27,28 @@ export default function AISimulator() {
   }, []);
 
   return (
-    <section id="ia" className="py-16 sm:py-24 bg-black text-white">
+    <section id="ia" className="py-16 sm:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-5 gap-16 items-center mb-24">
           
           {/* Texto */}
           <div className="lg:col-span-2 text-left">
-            <h2 className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent font-bold text-xs tracking-[6px] mb-6 uppercase">
+            <h2 className="text-gold-400 font-bold text-xs tracking-[4px] mb-6 uppercase">
               Eficiência nos Benefícios
             </h2>
-            <h3 className="text-4xl font-black leading-[1.1] mb-8 italic font-cinzel uppercase">
+            <h3 className="text-4xl font-black text-black leading-[1.1] mb-8">
               O FIM DO<br />CUSTO INEFICIENTE
             </h3>
-            <p className="text-lg text-gray-400 leading-relaxed font-light mb-10">
+            <p className="text-lg text-gray-500 leading-relaxed font-light mb-10">
               Nossa IA analisa em tempo real o mercado para identificar a{' '}
-              <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent font-bold">
+              <span className="text-gold-400 font-bold">
                 Migração Técnica
               </span>{' '}
               ideal para sua empresa.
             </p>
             <a
               href="https://wa.me/5521988179407?text=Olá!%20Quero%20iniciar%20o%20Mapeamento%20Digital%20com%20IA."
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#bf953f] to-[#aa771c] px-12 py-5 rounded-xl text-sm uppercase tracking-widest font-black text-white hover:shadow-xl transition-all"
+              className="inline-flex items-center gap-2 bg-black hover:bg-gray-900 px-10 py-4 rounded-xl text-sm uppercase tracking-widest font-black text-white transition-all hover:-translate-y-0.5"
             >
               Iniciar Mapeamento Digital
             </a>
@@ -56,14 +56,14 @@ export default function AISimulator() {
 
           {/* Simulador */}
           <div className="lg:col-span-3">
-            <div className="relative bg-[#050505] h-[450px] lg:h-[500px] rounded-3xl border border-[#bf953f]/10 overflow-hidden">
+            <div className="relative bg-black h-[450px] lg:h-[500px] rounded-3xl border border-gold-400/10 overflow-hidden">
               
               {/* Logo Central */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
                 {/* Anéis pulsantes */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="absolute w-32 h-32 border-2 border-[#bf953f]/30 rounded-full animate-ping" />
-                  <div className="absolute w-64 h-64 border-2 border-[#bf953f]/20 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                  <div className="absolute w-32 h-32 border-2 border-gold-400/30 rounded-full animate-ping" />
+                  <div className="absolute w-64 h-64 border-2 border-gold-400/20 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
                 </div>
                 <img
                   src="/images/logos/LOGO 2 SEM FUNDO.png"
@@ -78,8 +78,8 @@ export default function AISimulator() {
                   key={step.id}
                   className={`absolute ${step.position} px-4 py-2 rounded-lg transition-all duration-600 ${
                     step.isSuccess
-                      ? 'bg-gradient-to-r from-[#bf953f] to-[#aa771c] text-white font-bold text-sm px-5 py-3 shadow-[0_0_30px_rgba(191,149,63,0.6)]'
-                      : 'bg-black/80 backdrop-blur-sm border border-[#bf953f]/30 text-gray-300 text-xs'
+                      ? 'bg-gold-400 text-black font-bold text-sm px-5 py-3'
+                      : 'bg-black/90 backdrop-blur-sm border border-white/10 text-gray-300 text-xs'
                   } ${
                     activeStep >= i ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
                   }`}
@@ -117,15 +117,15 @@ export default function AISimulator() {
           ].map((card) => (
             <div
               key={card.num}
-              className="group p-8 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-[#bf953f]/30 transition-all"
+              className="group p-8 rounded-2xl bg-gray-50 border border-gray-200 hover:border-gold-400/50 transition-all"
             >
-              <div className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent mb-4 text-3xl font-bold">
+              <div className="text-gold-400 mb-4 text-3xl font-bold">
                 {card.num}
               </div>
-              <h4 className="text-white font-bold mb-4 text-lg tracking-widest uppercase group-hover:text-[#bf953f] transition-colors">
+              <h4 className="text-gray-900 font-bold mb-4 text-lg tracking-widest uppercase group-hover:text-gold-400 transition-colors">
                 {card.title}
               </h4>
-              <p className="text-gray-300 text-sm leading-relaxed font-light">{card.desc}</p>
+              <p className="text-gray-600 text-sm leading-relaxed font-light">{card.desc}</p>
             </div>
           ))}
         </div>

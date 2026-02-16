@@ -434,3 +434,20 @@ html {
   scrollbar-width: thin;
   scrollbar-color: rgba(212, 175, 55, 0.2) transparent;
 }
+/* Animação de scroll infinito para carrossel de operadoras */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-infinite {
+  animation: marquee 6s linear infinite;
+}
+
+.animate-scroll-infinite:hover {
+  animation-play-state: paused;
+}

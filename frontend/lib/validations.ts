@@ -106,6 +106,29 @@ export const heroLeadSchema = z.object({
 export type HeroLeadInput = z.infer<typeof heroLeadSchema>;
 
 // ============================================
+// SCHEMAS – LP V2 LEAD (VALUE-BASED BIDDING)
+// ============================================
+
+export const lpLeadSchema = z.object({
+  nome: z
+    .string()
+    .min(1, 'Nome é obrigatório')
+    .refine(isValidName, 'Nome inválido'),
+  empresa: z
+    .string()
+    .optional(),
+  whatsapp: z
+    .string()
+    .min(1, 'WhatsApp é obrigatório')
+    .refine(isValidBrazilianPhone, 'Telefone inválido. Ex: (21) 98888-7777'),
+  vidas: z
+    .string()
+    .min(1, 'Selecione a quantidade de vidas'),
+});
+
+export type LpLeadInput = z.infer<typeof lpLeadSchema>;
+
+// ============================================
 // SCHEMAS – CALCULADORA WIZARD LEAD
 // ============================================
 
@@ -152,17 +175,28 @@ export type CotacaoInputValidated = z.infer<typeof cotacaoInputSchema>;
 // ============================================
 
 export const apiLeadSchema = z.object({
-  nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  email: z.string().email('Email inválido'),
-  telefone: z.string().min(10, 'Telefone inválido'),
-  perfil: z.string().min(1, 'Perfil é obrigatório'),
-  // Campos opcionais
+  nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').optional().default(''),
+  email: z.string().optional().default(''),
+  telefone: z.string().optional().default(''),
+  perfil: z.string().optional().default(''),
+  // Campos opcionais (calculadora v2)
+  intencao: z.enum(['reduzir', 'contratar']).optional(),
+  perfil_cnpj: z.enum(['mei', 'pme']).optional(),
+  usa_bypass: z.boolean().optional(),
+  qtd_vidas_estimada: z.number().optional(),
   tipo_contratacao: z.string().optional(),
   cnpj: z.string().nullable().optional(),
   acomodacao: z.string().optional(),
   idades_beneficiarios: z.array(z.string()).optional(),
   bairro: z.string().optional(),
   top_3_planos: z.union([z.string(), z.array(z.string())]).optional(),
+  // Origem e status
+  origem: z.enum(['calculadora', 'hero_form', 'landing']).optional(),
+  parcial: z.boolean().optional(),
+  source: z.string().optional(),
+  lead_score_value: z.number().optional(),
+  empresa: z.string().optional(),
+  // UTM
   utm_source: z.string().optional(),
   utm_medium: z.string().optional(),
   utm_campaign: z.string().optional(),

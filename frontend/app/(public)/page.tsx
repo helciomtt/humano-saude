@@ -1,9 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import Partners from './components/Partners';
+import HeaderV2 from './components/HeaderV2';
+import HeroV2 from './components/HeroV2';
+import TrustBar from './components/TrustBar';
 
 // Lazy load componentes pesados
 const CalculatorWizard = dynamic(() => import('./components/CalculatorWizard'), {
@@ -28,12 +28,10 @@ const WhatsAppFloat = dynamic(() => import('./components/WhatsAppFloat'), {
 export default function LandingPage() {
   return (
     <>
-      <Header />
+      <HeaderV2 />
       <main>
-        <div id="hero">
-          <Hero />
-        </div>
-        <Partners />
+        <HeroV2 />
+        <TrustBar />
         <div id="calculadora">
           <CalculatorWizard />
         </div>

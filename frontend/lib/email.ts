@@ -595,3 +595,63 @@ export async function sendPixPendingEmail(dados: {
 
 // ─── Re-export getResend for admin resend route ──────────────
 export { getResend as _getResend };
+
+// ─────────────────────────────────────────────────────────────
+// 14. NOVO LEAD — Notificação para equipe comercial
+// ─────────────────────────────────────────────────────────────
+export async function enviarEmailNovoLead(dados: {
+  nome: string;
+  email: string;
+  telefone: string;
+  cnpj?: string;
+  perfil?: string;
+  intencao?: string;
+  perfilCnpj?: string;
+  acomodacao?: string;
+  bairro?: string;
+  idades?: string;
+  qtdVidas?: string;
+  usaBypass?: boolean;
+  origem: string;
+  parcial?: boolean;
+}) {
+  try {
+    const guard = guardApiKey();
+    if (!guard.ok) return guard.result;
+
+    const NovoLeadEmail = (await import('@/emails/NovoLeadEmail')).default;
+
+    const html = await render(
+      NovoLeadEmail({
+        nome: dados.nome,
+        email: dados.email,
+        telefone: dados.telefone,
+        cnpj: dados.cnpj || '—',
+        perfil: dados.perfil || '—',
+        intencao: dados.intencao || '—',
+        perfilCnpj: dados.perfilCnpj || '—',
+        acomodacao: dados.acomodacao || '—',
+        bairro: dados.bairro || '—',
+        idades: dados.idades || '—',
+        qtdVidas: dados.qtdVidas || '—',
+        usaBypass: dados.usaBypass || false,
+        origem: dados.origem,
+        parcial: dados.parcial || false,
+        dataCriacao: new Date().toISOString(),
+      })
+    );
+
+    const origemLabel = dados.origem === 'calculadora' ? 'Calculadora' : dados.origem === 'hero_form' ? 'Formulário' : 'Landing';
+    const prefix = dados.parcial ? '⚠️ Lead parcial' : '🔥 Novo lead';
+
+    return sendViaResend({
+      to: ADMIN_EMAILS,
+      cc: CC_EMAILS,
+      subject: `${prefix} — ${dados.nome || 'Sem nome'} (${origemLabel})`,
+      html,
+    });
+  } catch (err) {
+    log.error('enviarEmailNovoLead', err);
+    return { success: false, error: 'Erro ao enviar email de novo lead' };
+  }
+}

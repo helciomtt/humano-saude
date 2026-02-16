@@ -50,11 +50,41 @@ const config: Config = {
           "4": "var(--chart-4)",
           "5": "var(--chart-5)",
         },
-        // Paleta Premium Humano Saúde
+        // ═══ Paleta Unificada Humano Saúde ═══
+        // Azul Corporativo (Primary) — Confiança, Saúde, Profissionalismo
+        brand: {
+          50:  "#eef3ff",
+          100: "#d9e4ff",
+          200: "#bccfff",
+          300: "#8eb0ff",
+          400: "#5b8aff",
+          500: "#3b6cf7",
+          600: "#1e40af", // Primary Blue — botões, links, destaque
+          700: "#1a3790",
+          800: "#0f2240", // Dark Blue — headers, cards escuros
+          900: "#0a1628", // Hero Background — seções escuras
+          950: "#060e1a",
+        },
+        // Laranja CTA (Conversão) — Urgência, Ação
+        cta: {
+          400: "#fb923c",
+          500: "#f97316", // Hover
+          600: "#ea580c", // Default CTA
+          700: "#c2410c", // Active
+        },
+        // Dourado — Design System Humano Saúde (#B8941F)
         gold: {
-          dark: "#AA8A2E",
-          DEFAULT: "#D4AF37",
-          light: "#F6E05E",
+          50:  "#faf6eb",
+          100: "#f2e9cc",
+          200: "#e5d399",
+          300: "#d4b85c",
+          400: "#B8941F", // Gold padrão — cor principal dourada
+          500: "#A07E18", // Hover/Active
+          600: "#8A6C15", // Gold escuro
+          700: "#6E5611",
+          800: "#53410D",
+          900: "#3A2D09",
+          950: "#211A05",
         },
         piano: "#050505",
       },

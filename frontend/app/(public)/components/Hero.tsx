@@ -99,43 +99,43 @@ export default function Hero() {
     <section className="relative bg-gradient-to-br from-white via-gray-50 to-white min-h-screen flex pt-24 sm:pt-28 md:pt-32 lg:pt-24 xl:pt-28 2xl:pt-32 pb-12 sm:pb-16 overflow-hidden">
       {/* Partículas de fundo animadas */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-[#bf953f]/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#aa771c]/5 rounded-full blur-3xl animate-pulse delay-700" />
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-[#ffd700]/3 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gold-400/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gold-600/5 rounded-full blur-3xl animate-pulse delay-700" />
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gold-300/3 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-8 xl:gap-10 2xl:gap-12 items-start relative z-10">
         
         {/* ✅ Coluna Esquerda: Conteúdo com animação de entrada */}
         <div className="text-left max-w-[620px] animate-[slideInLeft_0.8s_ease-out]">
-          <h2 className="text-[10px] sm:text-[11px] lg:text-xs font-bold uppercase tracking-[3px] sm:tracking-[4px] mb-4 sm:mb-5 lg:mb-6 italic bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent opacity-0 animate-[fadeInUp_0.6s_ease-out_0.2s_forwards]">
+          <h2 className="text-[10px] sm:text-[11px] lg:text-xs font-bold uppercase tracking-[3px] sm:tracking-[4px] mb-4 sm:mb-5 lg:mb-6 italic bg-gold-400 bg-clip-text text-transparent opacity-0 animate-[fadeInUp_0.6s_ease-out_0.2s_forwards]">
             Especialistas em economia de planos de saúde
           </h2>
 
           <h1 className="text-[32px] sm:text-[36px] md:text-4xl lg:text-[38px] xl:text-[42px] 2xl:text-[46px] font-black text-slate-900 mb-5 sm:mb-6 leading-[1.1] font-cinzel opacity-0 animate-[fadeInUp_0.6s_ease-out_0.4s_forwards]">
             {/* Mobile: 4 linhas - mais compacto */}
-            <span className="block sm:hidden">Reduza até <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">40%</span></span>
+            <span className="block sm:hidden">Reduza até <span className="bg-gold-400 bg-clip-text text-transparent">40%</span></span>
             <span className="block sm:hidden">do custo da sua empresa</span>
-            <span className="block sm:hidden">em <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">Plano de Saúde</span></span>
+            <span className="block sm:hidden">em <span className="bg-gold-400 bg-clip-text text-transparent">Plano de Saúde</span></span>
             
             {/* Tablet SM e MD: 3 linhas */}
-            <span className="hidden sm:block lg:hidden">Reduza até <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">40%</span></span>
+            <span className="hidden sm:block lg:hidden">Reduza até <span className="bg-gold-400 bg-clip-text text-transparent">40%</span></span>
             <span className="hidden sm:block lg:hidden">do custo da sua empresa</span>
-            <span className="hidden sm:block lg:hidden">em <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">Plano de Saúde</span></span>
+            <span className="hidden sm:block lg:hidden">em <span className="bg-gold-400 bg-clip-text text-transparent">Plano de Saúde</span></span>
             
             {/* Desktop LG: 3 linhas */}
-            <span className="hidden lg:block xl:hidden">Reduza até <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">40%</span></span>
+            <span className="hidden lg:block xl:hidden">Reduza até <span className="bg-gold-400 bg-clip-text text-transparent">40%</span></span>
             <span className="hidden lg:block xl:hidden">do custo da sua empresa</span>
-            <span className="hidden lg:block xl:hidden">em <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">Plano de Saúde</span></span>
+            <span className="hidden lg:block xl:hidden">em <span className="bg-gold-400 bg-clip-text text-transparent">Plano de Saúde</span></span>
             
             {/* Desktop XL e 2XL: 3 linhas */}
-            <span className="hidden xl:block">Reduza até <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">40%</span></span>
+            <span className="hidden xl:block">Reduza até <span className="bg-gold-400 bg-clip-text text-transparent">40%</span></span>
             <span className="hidden xl:block">do custo da sua empresa</span>
-            <span className="hidden xl:block">em <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">Plano de Saúde</span></span>
+            <span className="hidden xl:block">em <span className="bg-gold-400 bg-clip-text text-transparent">Plano de Saúde</span></span>
           </h1>
 
           <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-gray-700 max-w-lg font-medium leading-[1.6] mb-6 sm:mb-7 lg:mb-8 opacity-0 animate-[fadeInUp_0.6s_ease-out_0.6s_forwards]">
-            Em 10 minutos, nossa <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent font-bold">Inteligência Artificial</span> analisa planos em diversas operadoras e apresenta opções mais eficientes, mantendo os hospitais e laboratórios que realmente importam.
+            Em 10 minutos, nossa <span className="bg-gold-400 bg-clip-text text-transparent font-bold">Inteligência Artificial</span> analisa planos em diversas operadoras e apresenta opções mais eficientes, mantendo os hospitais e laboratórios que realmente importam.
           </p>
 
           {/* ✅ Bullets com checks dourados elegantes e animação */}
@@ -154,10 +154,10 @@ export default function Hero() {
                 {/* Check dourado com gradiente */}
                 <div className="relative flex-shrink-0">
                   {/* Glow sutil */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#bf953f] to-[#aa771c] rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gold-400 rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity duration-300" />
                   
                   {/* Check circle com efeito 3D */}
-                  <div className="relative w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-[#bf953f] to-[#aa771c] rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 transform group-hover:shadow-2xl">
+                  <div className="relative w-6 h-6 sm:w-7 sm:h-7 bg-gold-400 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 transform group-hover:shadow-2xl">
                     <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
@@ -165,7 +165,7 @@ export default function Hero() {
                 </div>
                 
                 {/* Texto */}
-                <p className="text-sm sm:text-base font-medium group-hover:text-[#bf953f] transition-colors duration-300">{item.text}</p>
+                <p className="text-sm sm:text-base font-medium group-hover:text-gold-400 transition-colors duration-300">{item.text}</p>
               </li>
             ))}
           </ul>
@@ -174,10 +174,10 @@ export default function Hero() {
         {/* ✅ Coluna Direita: Formulário com glassmorphism e animação */}
         <div className="relative bg-white/60 backdrop-blur-xl p-4 sm:p-5 md:p-6 lg:p-7 xl:p-8 rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3rem] xl:rounded-[3.5rem] border border-white/40 shadow-2xl opacity-0 animate-[fadeInRight_0.8s_ease-out_0.5s_forwards] hover:shadow-[0_20px_60px_rgba(191,149,63,0.15)] transition-shadow duration-500">
           {/* Efeito de brilho no fundo */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#bf953f]/5 to-transparent rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3rem] xl:rounded-[3.5rem] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-gold-400/5 to-transparent rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3rem] xl:rounded-[3.5rem] pointer-events-none" />
           
           <h3 className="relative text-lg sm:text-xl md:text-2xl font-black text-slate-900 uppercase italic mb-3 sm:mb-4 font-cinzel">
-            <span className="bg-gradient-to-r from-[#bf953f] to-[#aa771c] bg-clip-text text-transparent">
+            <span className="bg-gold-400 bg-clip-text text-transparent">
               Análise em 10 minutos
             </span>
           </h3>
@@ -199,7 +199,7 @@ export default function Hero() {
                 onChange={handleChange}
                 placeholder="Seu nome ou Empresa"
                 className={`w-full p-3 lg:p-4 rounded-xl border-2 text-base lg:text-base bg-white focus:outline-none transition-colors ${
-                  errors.nome ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-[#bf953f]'
+                  errors.nome ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-gold-400'
                 }`}
                 required
               />
@@ -225,7 +225,7 @@ export default function Hero() {
                 onChange={handleChange}
                 placeholder="Seu melhor e-mail"
                 className={`w-full p-3 lg:p-4 rounded-xl border-2 text-base lg:text-base bg-white focus:outline-none transition-colors ${
-                  errors.email ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-[#bf953f]'
+                  errors.email ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-gold-400'
                 }`}
                 required
               />
@@ -251,7 +251,7 @@ export default function Hero() {
                 onChange={handleChange}
                 placeholder="Ex: (21) 98888-7777"
                 className={`w-full p-3 lg:p-4 rounded-xl border-2 text-base lg:text-base bg-white focus:outline-none transition-colors ${
-                  errors.telefone ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-[#bf953f]'
+                  errors.telefone ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-gold-400'
                 }`}
                 maxLength={15}
                 required
@@ -276,7 +276,7 @@ export default function Hero() {
                 value={formData.perfil}
                 onChange={handleChange}
                 className={`w-full p-3 lg:p-4 rounded-xl border-2 text-base lg:text-base bg-white focus:outline-none transition-colors ${
-                  errors.perfil ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-[#bf953f]'
+                  errors.perfil ? 'border-red-500 focus:border-red-600' : 'border-gray-200 focus:border-gold-400'
                 }`}
                 required
               >
@@ -312,7 +312,7 @@ export default function Hero() {
             </button>
 
             <p className="text-[10px] text-center text-gray-500 uppercase tracking-widest flex items-center justify-center gap-2">
-              <svg className="w-4 h-4 text-[#bf953f]" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 text-gold-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
               </svg>
               Retorno em até 10 minutos

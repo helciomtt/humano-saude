@@ -20,10 +20,14 @@ export interface PlanoResultado {
 
 export interface CalculadoraState {
   step: number;
+  intencao: 'reduzir' | 'contratar' | '';
+  perfilCnpj: 'mei' | 'pme' | '';
   tipoContrato: 'PF' | 'PME' | '';
   cnpj: string;
   acomodacao: 'Enfermaria' | 'Apartamento' | '';
   beneficiarios: Beneficiario[];
+  usaBypass: boolean;
+  qtdVidasEstimada: string;
   bairro: string;
   nome: string;
   email: string;
