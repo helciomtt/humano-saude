@@ -40,14 +40,12 @@ import {
   Shield,
   Bell,
   Send,
-  Brain,
   ScanLine,
   CheckSquare,
   FileArchive,
   Wallet,
   Receipt,
   Award,
-  Phone,
   Plug,
   Filter,
   UserPlus,
@@ -150,6 +148,20 @@ export const sidebarItems: SidebarItem[] = [
     ],
   },
 
+  // ── PROPOSTAS ──
+  {
+    id: 'propostas',
+    label: 'Propostas',
+    icon: FileText,
+    color: 'gold',
+    children: [
+      { id: 'propostas-fila', label: 'Fila de Propostas', icon: FileArchive, href: `${P}/propostas/fila`, badge: { text: 'NOVO', variant: 'gold' } },
+      { id: 'propostas-central', label: 'Gerador de Propostas', icon: FileText, href: `${P}/propostas`, badge: { text: 'NOVO', variant: 'gold' } },
+      { id: 'propostas-ia', label: 'Scanner Inteligente', icon: ScanLine, href: `${P}/propostas/ia`, badge: { text: 'IA', variant: 'gold' } },
+      { id: 'propostas-manual', label: 'Manual (um a um)', icon: CheckSquare, href: `${P}/propostas/manual` },
+    ],
+  },
+
   // ── CRM AVANÇADO ──
   {
     id: 'crm-avancado',
@@ -177,7 +189,7 @@ export const sidebarItems: SidebarItem[] = [
       { id: 'ai-audiences', label: 'Públicos IA', icon: UsersRound, href: `${P}/ai-performance/audiences` },
       { id: 'ai-rules', label: 'Regras & Alertas', icon: ShieldAlert, href: `${P}/ai-performance/rules` },
       { id: 'ai-settings', label: 'Configurações', icon: Settings, href: `${P}/ai-performance/settings` },
-      { id: 'ai-scanner', label: 'Scanner PDF', icon: ScanLine, href: `${P}/scanner`, badge: { text: 'IA', variant: 'gold' } },
+      { id: 'ai-scanner', label: 'Scanner Inteligente', icon: ScanLine, href: `${P}/scanner`, badge: { text: 'IA', variant: 'gold' } },
     ],
   },
 

@@ -42,7 +42,9 @@ export default async function CorretorDashboardPage() {
           Painel Operacional · {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </p>
       </div>
-      <DashboardOverview corretorId={dbCorretorId} />
+      <div data-tour="corretor-overview">
+        <DashboardOverview corretorId={dbCorretorId} />
+      </div>
     </div>
   );
 }

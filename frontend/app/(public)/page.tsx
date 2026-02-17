@@ -11,7 +11,6 @@ const CalculatorWizard = dynamic(() => import('./components/CalculatorWizard'), 
   ssr: false,
 });
 
-const HowItWorks = dynamic(() => import('./components/HowItWorks'));
 const AISimulator = dynamic(() => import('./components/AISimulator'));
 const CaseStudies = dynamic(() => import('./components/CaseStudies'));
 const Triade = dynamic(() => import('./components/Triade'));
@@ -32,19 +31,16 @@ export default function LandingPage() {
       <main>
         <HeroV2 />
         <TrustBar />
-        <div id="calculadora">
-          <CalculatorWizard />
-        </div>
-        <HowItWorks />
-        <div id="ia-simulator">
-          <AISimulator />
-        </div>
         <div id="case-studies">
           <CaseStudies />
         </div>
         <div id="triade">
           <Triade />
         </div>
+        <div id="ia-simulator">
+          <AISimulator />
+        </div>
+        <CalculatorWizard />
         <div id="testimonials">
           <Testimonials />
         </div>

@@ -189,7 +189,7 @@ export default function AnalyticsPage() {
                 key={d}
                 onClick={() => { setDays(d); }}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  days === d ? 'bg-[#D4AF37] text-black' : 'border border-white/10 text-gray-400 hover:text-white'
+                  days === d ? 'bg-[#D4AF37] text-white' : 'border border-white/10 text-gray-400 hover:text-white'
                 }`}
               >
                 {d}d

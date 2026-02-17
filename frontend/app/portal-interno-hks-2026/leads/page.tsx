@@ -41,7 +41,7 @@ const statusConfig: Record<LeadStatus, { label: string; color: string; icon: Rea
 
 const ORIGEM_CONFIG: Record<string, { label: string; color: string; icon: React.ComponentType<any> }> = {
   calculadora_economia: { label: 'Calculadora', color: 'bg-emerald-500/20 text-emerald-400', icon: Calculator },
-  scanner: { label: 'Scanner PDF', color: 'bg-cyan-500/20 text-cyan-400', icon: ScanLine },
+  scanner_pdf: { label: 'Scanner Inteligente', color: 'bg-cyan-500/20 text-cyan-400', icon: ScanLine },
   manual: { label: 'Manual', color: 'bg-amber-500/20 text-amber-400', icon: PenLine },
   site: { label: 'Site', color: 'bg-indigo-500/20 text-indigo-400', icon: Globe },
 };
@@ -286,7 +286,7 @@ export default function LeadsPage() {
   const origemOptions = [
     { value: 'indicacao', label: '👤 Indicações (Corretor)' },
     { value: 'calculadora_economia', label: '🧮 Calculadora' },
-    { value: 'scanner', label: '📄 Scanner PDF' },
+    { value: 'scanner_pdf', label: '📄 Scanner Inteligente' },
     { value: 'manual', label: '✏️ Manual' },
     { value: 'site', label: '🌐 Site' },
   ];
@@ -363,7 +363,7 @@ export default function LeadsPage() {
         rowKey={(row) => row.id}
         emptyIcon={Users}
         emptyTitle="Nenhum lead encontrado"
-        emptyDescription="Cadastre um lead manualmente ou use o Scanner PDF"
+        emptyDescription="Cadastre um lead manualmente ou use o Scanner Inteligente"
         onRowClick={(lead) => {
           setSelectedLead(lead);
           setDrawerOpen(true);

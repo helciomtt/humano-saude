@@ -18,9 +18,9 @@ import {
   FileText,
   Upload,
   Receipt,
-  RefreshCw,
   Palette,
   Wand2,
+  Sparkles,
   Award,
   User,
   UserPlus,
@@ -28,6 +28,7 @@ import {
   Loader2,
   CheckCircle,
   Send,
+  ClipboardList,
   Link2,
   Building2,
   Briefcase,
@@ -91,6 +92,16 @@ const menuItems: SidebarItem[] = [
       { id: 'crm-contacts', label: 'Contatos', icon: UserPlus, href: `${B}/crm/contacts` },
       { id: 'crm-companies', label: 'Empresas', icon: Building2, href: `${B}/crm/companies` },
       { id: 'crm-metricas', label: 'Métricas', icon: TrendingUp, href: `${B}/crm/metricas` },
+    ],
+  },
+  {
+    id: 'propostas',
+    label: 'Propostas',
+    icon: FileText,
+    color: 'gold',
+    children: [
+      { id: 'propostas-scanner', label: 'Scanner Inteligente', icon: Sparkles, href: `${B}/propostas`, badge: { text: 'IA', variant: 'gold' } },
+      { id: 'propostas-fila', label: 'Fila de propostas', icon: ClipboardList, href: `${B}/propostas/fila` },
     ],
   },
   {
@@ -417,6 +428,7 @@ export default function CorretorSidebar() {
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
+        data-tour="corretor-docksidebar"
         className="hidden lg:flex fixed left-0 top-0 h-screen bg-[#0B1215]/95 backdrop-blur-xl border-r border-white/10 flex-col z-50"
       >
         {/* Header */}

@@ -10,17 +10,17 @@ import { lpLeadSchema, getZodErrors } from '@/lib/validations';
 // ==============================================
 
 const LEAD_VALUES: Record<string, number> = {
-  '02-05': 100.0,   // Lead de entrada, ticket baixo
-  '06-29': 1000.0,  // FOCO: ticket médio alto, ciclo rápido
-  '30-99': 3000.0,  // Alta rentabilidade
-  '100+':  5000.0,  // Jackpot/Enterprise
+  'mei': 100.0,
+  'pme': 1000.0,
+  'empresa': 3000.0,
+  'a-definir': 500.0,
 };
 
 const VIDAS_OPTIONS = [
-  { value: '02-05', label: '02 a 05 vidas' },
-  { value: '06-29', label: '06 a 29 vidas' },
-  { value: '30-99', label: '30 a 99 vidas' },
-  { value: '100+',  label: '100+ vidas' },
+  { value: 'mei', label: 'MEI' },
+  { value: 'pme', label: 'PME (2 a 29 vidas)' },
+  { value: 'empresa', label: 'Empresa (30+ vidas)' },
+  { value: 'a-definir', label: 'A definir com especialista' },
 ];
 
 // ==============================================
@@ -139,7 +139,7 @@ export default function HeroV2() {
           nome: formData.nome,
           email: '', // campo não obrigatório na v2
           telefone: formData.whatsapp,
-          perfil: `Empresarial ${formData.vidas} vidas`,
+          perfil: `Empresarial ${formData.vidas}`,
           empresa: formData.empresa,
           lead_score_value: leadValue,
           source: 'lp_v2_refactor',
@@ -160,7 +160,7 @@ export default function HeroV2() {
       console.error('[LP V2] Submit error:', error);
       // Fallback: redireciona pro WhatsApp com dados
       const msg = encodeURIComponent(
-        `Olá! Sou ${formData.nome}${formData.empresa ? ` da ${formData.empresa}` : ''}. Tenho interesse em plano empresarial para ${formData.vidas} vidas.`
+        `Olá! Sou ${formData.nome}${formData.empresa ? ` da ${formData.empresa}` : ''}. Tenho interesse em plano empresarial (${formData.vidas}).`
       );
       window.open(`https://wa.me/5521988179407?text=${msg}`, '_blank');
     } finally {
@@ -209,7 +209,7 @@ export default function HeroV2() {
           {/* Benefícios com bolinhas piscantes */}
           <ul className="space-y-4 mb-8">
             {[
-              'A partir de 2 vidas (MEI e PME)',
+              'Atendimento para MEI, PME e Empresa',
               'Cotação pronta em até 10 minutos',
               'Redução de carência e migração sem burocracia',
             ].map((text, i) => (
@@ -332,10 +332,10 @@ export default function HeroV2() {
                   )}
                 </div>
 
-                {/* Quantidade de Vidas (CRÍTICO) */}
+                {/* Perfil da Empresa */}
                 <div>
                   <label htmlFor="lp-vidas" className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    Quantidade de Vidas *
+                    Perfil da Empresa *
                   </label>
                   <select
                     id="lp-vidas"
@@ -348,7 +348,7 @@ export default function HeroV2() {
                         : 'border-gray-200 focus:border-gray-900 focus:ring-2 focus:ring-gray-100'
                     } ${!formData.vidas ? 'text-gray-400' : 'text-gray-900'}`}
                   >
-                    <option value="" disabled>Selecione a quantidade</option>
+                    <option value="" disabled>Selecione o perfil</option>
                     {VIDAS_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}

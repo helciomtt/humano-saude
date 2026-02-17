@@ -165,7 +165,7 @@ export function LeadDialog({ open, onOpenChange, onSuccess }: LeadDialogProps) {
           <button
             onClick={handleSave}
             disabled={saving || !form.nome.trim() || !form.whatsapp.trim()}
-            className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black hover:bg-[#F6E05E] disabled:opacity-50 transition-colors"
+            className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white hover:bg-[#F6E05E] disabled:opacity-50 transition-colors"
           >
             {saving ? 'Salvando...' : 'Salvar Lead'}
           </button>

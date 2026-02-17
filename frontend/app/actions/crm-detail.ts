@@ -248,8 +248,69 @@ export async function updateDealField(
 ): Promise<ActionResult> {
   try {
     const sb = createServiceClient();
-    const { error } = await sb.from('crm_deals').update({ [field]: value }).eq('id', dealId);
+    const normalizedValue =
+      field === 'owner_corretor_id' && typeof value === 'string' && value.trim().length === 0
+        ? null
+        : value;
+
+    const { data: dealRefs, error: refsError } = await sb
+      .from('crm_deals')
+      .select('lead_id, crm_card_id')
+      .eq('id', dealId)
+      .maybeSingle();
+
+    if (refsError) throw refsError;
+
+    const { error } = await sb.from('crm_deals').update({ [field]: normalizedValue }).eq('id', dealId);
     if (error) throw error;
+
+    if (field === 'owner_corretor_id') {
+      const ownerId = typeof normalizedValue === 'string' ? normalizedValue : null;
+
+      if (dealRefs?.lead_id) {
+        const { error: leadOwnerError } = await sb
+          .from('insurance_leads')
+          .update({ corretor_id: ownerId, updated_at: new Date().toISOString() })
+          .eq('id', dealRefs.lead_id);
+
+        if (leadOwnerError) {
+          logger.warn('[updateDealField] Falha ao sincronizar corretor no lead', {
+            deal_id: dealId,
+            lead_id: dealRefs.lead_id,
+            error: leadOwnerError.message,
+          });
+        }
+
+        const { error: queueOwnerError } = await sb
+          .from('propostas_fila')
+          .update({ corretor_id: ownerId })
+          .eq('lead_id', dealRefs.lead_id);
+
+        if (queueOwnerError) {
+          logger.warn('[updateDealField] Falha ao sincronizar corretor na fila de propostas', {
+            deal_id: dealId,
+            lead_id: dealRefs.lead_id,
+            error: queueOwnerError.message,
+          });
+        }
+      }
+
+      if (dealRefs?.crm_card_id) {
+        const { error: cardOwnerError } = await sb
+          .from('crm_cards')
+          .update({ corretor_id: ownerId })
+          .eq('id', dealRefs.crm_card_id);
+
+        if (cardOwnerError) {
+          logger.warn('[updateDealField] Falha ao sincronizar corretor no card do CRM', {
+            deal_id: dealId,
+            crm_card_id: dealRefs.crm_card_id,
+            error: cardOwnerError.message,
+          });
+        }
+      }
+    }
+
     return { success: true };
   } catch (e) {
     logger.error('[updateDealField]', e);

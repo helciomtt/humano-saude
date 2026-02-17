@@ -99,7 +99,7 @@ export default function ConfiguracoesPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black hover:bg-[#F6E05E] transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white hover:bg-[#F6E05E] transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {saving ? 'Salvando...' : 'Salvar'}
@@ -114,7 +114,7 @@ export default function ConfiguracoesPage() {
             onClick={() => setActiveTab(t.key)}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === t.key
-                ? 'bg-[#D4AF37] text-black'
+                ? 'bg-[#D4AF37] text-white'
                 : 'border border-white/10 text-gray-400 hover:text-white'
             }`}
           >
@@ -248,7 +248,7 @@ export default function ConfiguracoesPage() {
             </div>
             <button
               onClick={() => setShowInvite(true)}
-              className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black hover:bg-[#F6E05E] transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white hover:bg-[#F6E05E] transition-colors"
             >
               <UserPlus className="h-4 w-4" /> Convidar Membro
             </button>
@@ -324,7 +324,7 @@ export default function ConfiguracoesPage() {
                     }
                   }}
                   disabled={inviting}
-                  className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black hover:bg-[#F6E05E] transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white hover:bg-[#F6E05E] transition-colors disabled:opacity-50"
                 >
                   {inviting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                   {inviting ? 'Adicionando...' : 'Adicionar'}

@@ -14,7 +14,7 @@ export default function FAQ() {
     {
       question: 'Meus colaboradores perdem carência ao trocar de operadora?',
       answer:
-        'Não. A portabilidade de carências é garantida pela ANS (Resolução Normativa 438). Todos os colaboradores e dependentes mantêm suas carências cumpridas integralmente. Cuidamos de toda a documentação técnica para que a transição seja transparente e sem interrupção de atendimento.',
+        'Não. Nosso processo é de redução de carência promocional, negociada conforme campanha e regras comerciais da operadora de destino. Estruturamos a migração para reduzir os prazos de carência e manter a transição transparente, sem interrupção de atendimento.',
     },
     {
       question: 'Quanto minha empresa pode economizar de verdade?',

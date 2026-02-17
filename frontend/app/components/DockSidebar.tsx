@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   ChevronDown,
@@ -19,7 +20,6 @@ import {
   badgeStyles,
   resolveColors,
   footerItems,
-  type SidebarItem,
 } from "@/lib/sidebar-config"
 import { useSidebarNav, useSidebarConvite } from "./hooks/useSidebar"
 
@@ -30,11 +30,32 @@ import { useSidebarNav, useSidebarConvite } from "./hooks/useSidebar"
 export default function DockSidebar() {
   const nav = useSidebarNav()
   const convite = useSidebarConvite()
+  const collator = useMemo(
+    () => new Intl.Collator("pt-BR", { sensitivity: "base", numeric: true }),
+    []
+  )
+
+  const sortedSidebarItems = useMemo(
+    () =>
+      [...sidebarItems]
+        .sort((a, b) => collator.compare(a.label, b.label))
+        .map((item) =>
+          item.children?.length
+            ? {
+                ...item,
+                children: [...item.children].sort((a, b) =>
+                  collator.compare(a.label, b.label)
+                ),
+              }
+            : item
+        ),
+    [collator]
+  )
 
   // ─── Render menu items ──────────────────
   const renderMenu = (expanded: boolean, onNav?: () => void) => (
     <nav className="space-y-0.5 px-2">
-      {sidebarItems.map((item) => {
+      {sortedSidebarItems.map((item) => {
         const Icon = item.icon
         const hasChildren = !!item.children?.length
         const isOpen = hasChildren ? nav.isMenuOpen(item) : false
@@ -165,6 +186,7 @@ export default function DockSidebar() {
         transition={{ duration: 0.3, ease: "easeInOut" }}
         onMouseEnter={() => nav.setIsExpanded(true)}
         onMouseLeave={() => nav.setIsExpanded(false)}
+        data-tour="admin-docksidebar"
         className="hidden lg:flex fixed left-0 top-0 h-screen bg-[#0B1215]/95 backdrop-blur-xl border-r border-white/10 flex-col z-50"
       >
         <div className="h-16 flex items-center justify-center border-b border-white/10 px-4 overflow-hidden">

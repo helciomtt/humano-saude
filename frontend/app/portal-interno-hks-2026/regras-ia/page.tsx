@@ -89,7 +89,7 @@ export default function RegrasIAPage() {
         <button
           onClick={() => setFiltro('')}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-            filtro === '' ? 'bg-[#D4AF37] text-black' : 'text-gray-400 hover:text-white'
+            filtro === '' ? 'bg-[#D4AF37] text-white' : 'text-gray-400 hover:text-white'
           }`}
         >
           Todas
@@ -99,7 +99,7 @@ export default function RegrasIAPage() {
             key={c}
             onClick={() => setFiltro(c)}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
-              filtro === c ? 'bg-[#D4AF37] text-black' : 'text-gray-400 hover:text-white'
+              filtro === c ? 'bg-[#D4AF37] text-white' : 'text-gray-400 hover:text-white'
             }`}
           >
             {catIcon(c)} {catLabel(c)}

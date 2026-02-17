@@ -5,7 +5,6 @@ import "./globals.css";
 import MetaPixel from "./components/MetaPixel";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import GoogleTagManager, { GoogleTagManagerNoScript } from "./components/GoogleTagManager";
-// HotjarInit moved to native <script> in <head> for proper detection
 
 // Inter para corpo de texto
 const inter = Inter({
@@ -79,16 +78,9 @@ export default function RootLayout({
         {/* Google Tag Manager */}
         <GoogleTagManager />
         
-        {/* Hotjar Tracking Code */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(h,o,t,j,a,r){h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};h._hjSettings={hjid:6428498,hjsv:6};a=o.getElementsByTagName('head')[0];r=o.createElement('script');r.async=1;r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;a.appendChild(r);})(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`,
-          }}
-        />
-        
-        {/* Contentsquare UX Analytics */}
+        {/* Contentsquare / Hotjar One Tag */}
         <script src="https://t.contentsquare.net/uxa/bf79baf35fb2a.js" async />
-
+        
         <Suspense fallback={null}>
           <MetaPixel />
         </Suspense>

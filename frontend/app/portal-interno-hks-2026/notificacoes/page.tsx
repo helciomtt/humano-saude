@@ -87,7 +87,7 @@ export default function NotificacoesPage() {
                 onClick={() => setFilter('todas')}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                   filter === 'todas'
-                    ? 'bg-[#D4AF37] text-black'
+                    ? 'bg-[#D4AF37] text-white'
                     : 'border border-white/10 text-gray-400 hover:text-white'
                 }`}
               >
@@ -97,7 +97,7 @@ export default function NotificacoesPage() {
                 onClick={() => setFilter('nao_lidas')}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                   filter === 'nao_lidas'
-                    ? 'bg-[#D4AF37] text-black'
+                    ? 'bg-[#D4AF37] text-white'
                     : 'border border-white/10 text-gray-400 hover:text-white'
                 }`}
               >

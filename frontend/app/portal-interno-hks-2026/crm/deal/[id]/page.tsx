@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
@@ -19,6 +19,7 @@ import QuickActions from '@/components/crm/QuickActions';
 import ChangelogView from '@/components/crm/ChangelogView';
 import CommentsSection from '@/components/crm/CommentsSection';
 import type { CrmDealPriority, CrmActivityInsert } from '@/lib/types/crm';
+import { getCorretoresList } from '@/app/actions/crm';
 
 // ========================================
 // HELPERS
@@ -141,6 +142,8 @@ export default function DealDetailPage() {
   const router = useRouter();
   const dealId = params?.id as string;
   const corretorId = 'admin';
+  const [corretorOptions, setCorretorOptions] = useState<Array<{ id: string; nome: string }>>([]);
+  const [loadingCorretorOptions, setLoadingCorretorOptions] = useState(true);
 
   const {
     deal, loading, activeTab, setActiveTab,
@@ -151,6 +154,29 @@ export default function DealDetailPage() {
   } = useDealDetail(dealId);
 
   const isFollowing = deal?.followers.some((f) => f.corretor_id === corretorId) ?? false;
+
+  useEffect(() => {
+    let active = true;
+
+    void (async () => {
+      const result = await getCorretoresList();
+      if (!active) return;
+
+      if (result.success && result.data) {
+        setCorretorOptions(result.data.map((item) => ({ id: item.id, nome: item.nome })));
+      } else {
+        setCorretorOptions([]);
+        if (result.error) {
+          toast.error('Não foi possível carregar os corretores.', { description: result.error });
+        }
+      }
+      setLoadingCorretorOptions(false);
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (loading || !deal) {
     return (
@@ -274,6 +300,28 @@ export default function DealDetailPage() {
                   ]}
                   onSave={(v) => handleFieldUpdate('prioridade', v)}
                 />
+                <div className="space-y-1">
+                  <label className="text-[10px] text-white/30">Responsável (corretor/usuário)</label>
+                  <select
+                    value={deal.owner_corretor_id || '__none__'}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      void handleFieldUpdate('owner_corretor_id', value === '__none__' ? null : value);
+                    }}
+                    disabled={loadingCorretorOptions}
+                    className="w-full rounded-lg border border-white/20 bg-white/5 px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#D4AF37]"
+                  >
+                    <option value="__none__">Sem responsável</option>
+                    {corretorOptions.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.nome}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-white/35">
+                    Você pode trocar ou remover a atribuição a qualquer momento.
+                  </p>
+                </div>
                 <EditableField label="Probabilidade (%)" value={deal.probabilidade} type="number" onSave={(v) => handleFieldUpdate('probabilidade', v)} />
               </div>
             </Section>

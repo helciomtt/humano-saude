@@ -1,14 +1,19 @@
 """
-Serviço de IA para extração inteligente de dados de PDFs
+Serviço de IA para extração inteligente de dados de documentos
 Utiliza OpenAI GPT-4 para análise de documentos de planos de saúde
 """
-import os
-import json
-from typing import Dict, List, Optional
-from pypdf import PdfReader
-from openai import OpenAI
-from dotenv import load_dotenv
+import base64
 import io
+import json
+import os
+import zipfile
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from typing import Dict, Optional
+
+from dotenv import load_dotenv
+from openai import OpenAI
+from pypdf import PdfReader
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -16,52 +21,100 @@ load_dotenv()
 
 class AIService:
     """Serviço de IA para processamento de documentos"""
-    
+
+    IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tif', '.tiff'}
+    TEXT_EXTENSIONS = {'.txt', '.csv', '.json', '.xml', '.html', '.htm', '.md'}
+    DOCX_EXTENSIONS = {'.docx'}
+
     def __init__(self):
         """Inicializa o cliente OpenAI"""
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY não encontrada nas variáveis de ambiente")
-        
+
         self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o-mini"
-    
+
     def extrair_texto_pdf(self, file_bytes: bytes) -> str:
         """
         Extrai texto de um arquivo PDF
-        
+
         Args:
             file_bytes: Bytes do arquivo PDF
-            
+
         Returns:
             str: Texto extraído do PDF
         """
         try:
-            # Criar um objeto de arquivo em memória
             pdf_file = io.BytesIO(file_bytes)
-            
-            # Ler o PDF
             reader = PdfReader(pdf_file)
-            
-            # Extrair texto de todas as páginas
+
             texto_completo = []
             for page in reader.pages:
                 texto = page.extract_text()
                 if texto:
                     texto_completo.append(texto)
-            
+
             return "\n\n".join(texto_completo)
-        
+
         except Exception as e:
             raise ValueError(f"Erro ao extrair texto do PDF: {str(e)}")
-    
-    def analisar_documento_saude(self, texto_pdf: str) -> Dict:
+
+    def extrair_texto_docx(self, file_bytes: bytes) -> str:
+        """
+        Extrai texto de um arquivo DOCX
+
+        Args:
+            file_bytes: Bytes do arquivo DOCX
+
+        Returns:
+            str: Texto extraído do DOCX
+        """
+        try:
+            with zipfile.ZipFile(io.BytesIO(file_bytes)) as archive:
+                xml_data = archive.read('word/document.xml')
+
+            root = ET.fromstring(xml_data)
+            namespace = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+
+            paragraphs = []
+            for paragraph in root.findall('.//w:p', namespace):
+                runs = [
+                    node.text for node in paragraph.findall('.//w:t', namespace) if node.text
+                ]
+                if runs:
+                    paragraphs.append(''.join(runs))
+
+            return '\n'.join(paragraphs)
+
+        except Exception as e:
+            raise ValueError(f"Erro ao extrair texto do DOCX: {str(e)}")
+
+    def extrair_texto_documento_textual(self, file_bytes: bytes) -> str:
+        """
+        Extrai texto de documentos textuais simples
+
+        Args:
+            file_bytes: Bytes do arquivo textual
+
+        Returns:
+            str: Texto extraído do documento
+        """
+        for encoding in ('utf-8', 'latin-1'):
+            try:
+                return file_bytes.decode(encoding)
+            except UnicodeDecodeError:
+                continue
+
+        raise ValueError("Não foi possível decodificar o arquivo textual")
+
+    def analisar_documento_saude(self, texto_documento: str) -> Dict:
         """
         Analisa documento de plano de saúde usando OpenAI
-        
+
         Args:
-            texto_pdf: Texto extraído do PDF
-            
+            texto_documento: Texto extraído do documento
+
         Returns:
             Dict: Dados estruturados extraídos
         """
@@ -74,6 +127,8 @@ Analise o documento abaixo e extraia as seguintes informações:
 - **valor_atual**: valor atual do plano (número decimal, sem símbolo de moeda)
 - **tipo_plano**: tipo de plano se mencionado (ADESAO, PME, EMPRESARIAL ou null)
 - **nome_beneficiarios**: lista com nomes dos beneficiários se disponíveis
+- **socios_detectados**: lista com nomes dos sócios quando o documento for societário (contrato social/alteração contratual)
+- **total_socios**: número de sócios identificados quando possível
 - **observacoes**: qualquer informação relevante adicional
 
 **IMPORTANTE:**
@@ -85,11 +140,11 @@ Analise o documento abaixo e extraia as seguintes informações:
 Retorne APENAS um objeto JSON válido, sem texto adicional.
 
 DOCUMENTO:
-{texto_pdf}
+{texto_documento}
 
 JSON:
 """
-        
+
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -103,31 +158,84 @@ JSON:
                         "content": prompt
                     }
                 ],
-                temperature=0.1,  # Baixa temperatura para respostas mais consistentes
-                response_format={"type": "json_object"}  # Força resposta JSON
+                temperature=0.1,
+                response_format={"type": "json_object"}
             )
-            
-            # Extrair resposta
+
             resposta_texto = response.choices[0].message.content
-            
-            # Parsear JSON
             dados_extraidos = json.loads(resposta_texto)
-            
-            # Validar e limpar dados
+
             return self._validar_dados_extraidos(dados_extraidos)
-        
+
         except json.JSONDecodeError as e:
             raise ValueError(f"Erro ao parsear resposta da IA: {str(e)}")
         except Exception as e:
             raise ValueError(f"Erro ao analisar documento com IA: {str(e)}")
-    
+
+    def analisar_imagem_documento(self, file_bytes: bytes, content_type: Optional[str]) -> Dict:
+        """
+        Analisa imagem de documento usando capacidade visual do modelo
+
+        Args:
+            file_bytes: Bytes da imagem
+            content_type: MIME type da imagem
+
+        Returns:
+            Dict: Dados estruturados extraídos
+        """
+        try:
+            mime_type = content_type if content_type and content_type.startswith('image/') else 'image/jpeg'
+            encoded = base64.b64encode(file_bytes).decode('utf-8')
+
+            prompt = (
+                "Analise esta imagem de um documento de plano de saúde e extraia um JSON com os campos: "
+                "idades (lista de inteiros), operadora (string em maiúsculas), valor_atual (float), "
+                "tipo_plano (ADESAO, PME, EMPRESARIAL ou null), nome_beneficiarios (lista de strings), "
+                "socios_detectados (lista de strings), total_socios (inteiro ou null), "
+                "observacoes (string ou null). "
+                "Se não encontrar um campo, retorne null ou lista vazia. "
+                "Retorne APENAS JSON válido."
+            )
+
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "Você é um assistente especializado em extrair dados de documentos de planos de saúde a partir de imagens. Sempre retorne JSON válido."
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:{mime_type};base64,{encoded}"}
+                            },
+                        ],
+                    },
+                ],
+                temperature=0.1,
+                response_format={"type": "json_object"},
+            )
+
+            resposta_texto = response.choices[0].message.content
+            dados_extraidos = json.loads(resposta_texto)
+
+            return self._validar_dados_extraidos(dados_extraidos)
+
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Erro ao parsear resposta visual da IA: {str(e)}")
+        except Exception as e:
+            raise ValueError(f"Erro ao analisar imagem com IA: {str(e)}")
+
     def _validar_dados_extraidos(self, dados: Dict) -> Dict:
         """
         Valida e normaliza dados extraídos
-        
+
         Args:
             dados: Dados brutos extraídos
-            
+
         Returns:
             Dict: Dados validados e normalizados
         """
@@ -137,71 +245,134 @@ JSON:
             "valor_atual": None,
             "tipo_plano": None,
             "nome_beneficiarios": [],
+            "socios_detectados": [],
+            "total_socios": None,
             "observacoes": None,
-            "confianca": "alta"  # Indicador de confiança na extração
+            "confianca": "alta"
         }
-        
-        # Validar idades
+
         if "idades" in dados and isinstance(dados["idades"], list):
             resultado["idades"] = [
-                int(idade) for idade in dados["idades"] 
+                int(idade) for idade in dados["idades"]
                 if isinstance(idade, (int, float, str)) and str(idade).isdigit()
             ]
-        
-        # Validar operadora
+
         if "operadora" in dados and dados["operadora"]:
             resultado["operadora"] = str(dados["operadora"]).upper().strip()
-        
-        # Validar valor
+
         if "valor_atual" in dados and dados["valor_atual"]:
             try:
                 valor = float(str(dados["valor_atual"]).replace(",", "."))
                 resultado["valor_atual"] = round(valor, 2)
             except (ValueError, TypeError):
                 resultado["valor_atual"] = None
-        
-        # Validar tipo de plano
+
         if "tipo_plano" in dados and dados["tipo_plano"]:
             tipo = str(dados["tipo_plano"]).upper()
             if tipo in ["ADESAO", "PME", "EMPRESARIAL"]:
                 resultado["tipo_plano"] = tipo
-        
-        # Validar nomes
+
         if "nome_beneficiarios" in dados and isinstance(dados["nome_beneficiarios"], list):
             resultado["nome_beneficiarios"] = [
                 str(nome).strip() for nome in dados["nome_beneficiarios"] if nome
             ]
-        
-        # Observações
+
+        if "socios_detectados" in dados and isinstance(dados["socios_detectados"], list):
+            resultado["socios_detectados"] = [
+                str(nome).strip() for nome in dados["socios_detectados"] if nome
+            ]
+
+        if "total_socios" in dados and dados["total_socios"] is not None:
+            try:
+                total_socios = int(str(dados["total_socios"]).strip())
+                if total_socios > 0:
+                    resultado["total_socios"] = total_socios
+            except (ValueError, TypeError):
+                resultado["total_socios"] = None
+
+        if resultado["total_socios"] is None and len(resultado["socios_detectados"]) > 0:
+            resultado["total_socios"] = len(resultado["socios_detectados"])
+
         if "observacoes" in dados and dados["observacoes"]:
             resultado["observacoes"] = str(dados["observacoes"])
-        
+
         return resultado
-    
-    async def processar_pdf_completo(self, file_bytes: bytes) -> Dict:
+
+    async def processar_documento_completo(
+        self,
+        file_bytes: bytes,
+        filename: Optional[str],
+        content_type: Optional[str] = None,
+    ) -> Dict:
         """
-        Pipeline completo: extrai texto do PDF e analisa com IA
-        
+        Pipeline completo para documentos (PDF, imagem, texto e DOCX)
+
         Args:
-            file_bytes: Bytes do arquivo PDF
-            
+            file_bytes: Bytes do arquivo
+            filename: Nome do arquivo
+            content_type: MIME type opcional
+
         Returns:
             Dict: Dados estruturados extraídos
         """
-        # Extrair texto
-        texto = self.extrair_texto_pdf(file_bytes)
-        
-        if not texto or len(texto.strip()) < 50:
-            raise ValueError("PDF vazio ou com pouco conteúdo para análise")
-        
-        # Analisar com IA
-        dados = self.analisar_documento_saude(texto)
-        
-        # Adicionar metadados
-        dados["texto_extraido_preview"] = texto[:500] + "..." if len(texto) > 500 else texto
-        dados["total_caracteres"] = len(texto)
-        
-        return dados
+        ext = Path(filename or '').suffix.lower()
+
+        # PDF
+        if ext == '.pdf' or file_bytes.startswith(b'%PDF'):
+            texto = self.extrair_texto_pdf(file_bytes)
+            if not texto or len(texto.strip()) < 30:
+                raise ValueError("Documento PDF vazio ou com pouco conteúdo para análise")
+
+            dados = self.analisar_documento_saude(texto)
+            dados["texto_extraido_preview"] = texto[:500] + "..." if len(texto) > 500 else texto
+            dados["total_caracteres"] = len(texto)
+            return dados
+
+        # DOCX
+        if ext in self.DOCX_EXTENSIONS:
+            texto = self.extrair_texto_docx(file_bytes)
+            if not texto or len(texto.strip()) < 30:
+                raise ValueError("Documento DOCX vazio ou com pouco conteúdo para análise")
+
+            dados = self.analisar_documento_saude(texto)
+            dados["texto_extraido_preview"] = texto[:500] + "..." if len(texto) > 500 else texto
+            dados["total_caracteres"] = len(texto)
+            return dados
+
+        # Texto simples
+        if ext in self.TEXT_EXTENSIONS:
+            texto = self.extrair_texto_documento_textual(file_bytes)
+            if not texto or len(texto.strip()) < 30:
+                raise ValueError("Documento textual vazio ou com pouco conteúdo para análise")
+
+            dados = self.analisar_documento_saude(texto)
+            dados["texto_extraido_preview"] = texto[:500] + "..." if len(texto) > 500 else texto
+            dados["total_caracteres"] = len(texto)
+            return dados
+
+        # Imagens
+        is_image = ext in self.IMAGE_EXTENSIONS or (
+            content_type is not None and content_type.startswith('image/')
+        )
+        if is_image:
+            dados = self.analisar_imagem_documento(file_bytes, content_type)
+            dados["texto_extraido_preview"] = "Análise visual do documento em imagem"
+            dados["total_caracteres"] = 0
+            return dados
+
+        raise ValueError(
+            "Formato não suportado. Use PDF, imagem (PNG/JPG/JPEG/WEBP/BMP/TIFF), DOCX ou texto (TXT/CSV/JSON/XML/HTML/MD)."
+        )
+
+    async def processar_pdf_completo(self, file_bytes: bytes) -> Dict:
+        """
+        Compatibilidade com pipeline legado de PDF
+        """
+        return await self.processar_documento_completo(
+            file_bytes=file_bytes,
+            filename='documento.pdf',
+            content_type='application/pdf',
+        )
 
 
 # Instância singleton do serviço

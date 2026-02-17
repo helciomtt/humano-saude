@@ -215,7 +215,7 @@ export function DataTable<T>({
                       onClick={() => setPage(p)}
                       className={`h-7 w-7 rounded text-xs font-medium transition-colors ${
                         p === page
-                          ? 'bg-[#D4AF37] text-black'
+                          ? 'bg-[#D4AF37] text-white'
                           : 'text-gray-400 hover:text-white'
                       }`}
                     >

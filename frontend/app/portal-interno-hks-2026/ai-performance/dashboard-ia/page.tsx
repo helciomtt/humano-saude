@@ -23,7 +23,7 @@ export default function DashboardIAPage() {
     load();
   }, []);
 
-  const pdfProcessados = leads.filter((l: any) => l.origem === 'scanner_pdf').length;
+  const documentosProcessados = leads.filter((l: any) => l.origem === 'scanner_pdf').length;
   const totalLeads = leads.length;
 
   return (
@@ -32,7 +32,7 @@ export default function DashboardIAPage() {
         <h1 className="text-4xl font-bold text-[#D4AF37]" style={{ fontFamily: 'Perpetua Titling MT, serif' }}>
           AI PERFORMANCE
         </h1>
-        <p className="mt-2 text-gray-400">Dashboard de inteligência artificial e processamento de PDFs</p>
+        <p className="mt-2 text-gray-400">Dashboard de inteligência artificial e processamento de documentos</p>
       </div>
 
       {loading ? (
@@ -53,10 +53,10 @@ export default function DashboardIAPage() {
           {/* KPI Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {[
-              { label: 'PDFs Processados', value: pdfProcessados, sub: `De ${totalLeads} leads totais`, icon: FileText, color: 'text-[#D4AF37]', border: 'border-[#D4AF37]/20' },
+              { label: 'Documentos Processados', value: documentosProcessados, sub: `De ${totalLeads} leads totais`, icon: FileText, color: 'text-[#D4AF37]', border: 'border-[#D4AF37]/20' },
               { label: 'Precisão Extração', value: '98.7%', sub: 'Baseado em validações manuais', icon: Brain, color: 'text-emerald-400', border: 'border-emerald-500/20' },
-              { label: 'Tempo Médio', value: '4.2s', sub: 'Por PDF processado', icon: Zap, color: 'text-cyan-400', border: 'border-cyan-500/20' },
-              { label: 'Economia Estimada', value: `${Math.round(pdfProcessados * 0.3)}h`, sub: 'Tempo humano poupado', icon: Clock, color: 'text-purple-400', border: 'border-purple-500/20' },
+              { label: 'Tempo Médio', value: '4.2s', sub: 'Por documento processado', icon: Zap, color: 'text-cyan-400', border: 'border-cyan-500/20' },
+              { label: 'Economia Estimada', value: `${Math.round(documentosProcessados * 0.3)}h`, sub: 'Tempo humano poupado', icon: Clock, color: 'text-purple-400', border: 'border-purple-500/20' },
             ].map((item, i) => (
               <div key={i} className={`rounded-lg border ${item.border} bg-[#0a0a0a] p-5`}>
                 <item.icon className={`h-6 w-6 ${item.color} mb-3`} />
@@ -99,7 +99,7 @@ export default function DashboardIAPage() {
             </div>
             <div className="divide-y divide-white/5">
               {[
-                { modulo: 'Scanner PDF → Extração de Dados', status: 'ativo', descricao: 'Extrai nome, WhatsApp, operadora, idades e valores de carteirinhas de planos de saúde', precisao: '98.7%' },
+                { modulo: 'Scanner de Documentos → Extração de Dados', status: 'ativo', descricao: 'Extrai nome, WhatsApp, operadora, idades e valores de carteirinhas de planos de saúde', precisao: '98.7%' },
                 { modulo: 'Cotação Inteligente', status: 'ativo', descricao: 'Compara planos de múltiplas operadoras e sugere a melhor opção para o cliente', precisao: '97.2%' },
                 { modulo: 'Lead Scoring', status: 'ativo', descricao: 'Classifica leads por probabilidade de conversão baseado em histórico', precisao: '94.5%' },
                 { modulo: 'Análise de Campanhas', status: 'ativo', descricao: 'Otimiza budget de Meta Ads em tempo real baseado em CPL e ROI', precisao: '92.1%' },
@@ -137,11 +137,11 @@ export default function DashboardIAPage() {
             </div>
           </div>
 
-          {/* Últimos PDFs processados (da tabela de leads) */}
+          {/* Últimos documentos processados (da tabela de leads) */}
           <div className="rounded-lg border border-white/10 bg-[#0a0a0a]">
             <div className="border-b border-white/10 p-4">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                <HardDrive className="h-5 w-5 text-[#D4AF37]" /> Últimos Leads via Scanner PDF
+                <HardDrive className="h-5 w-5 text-[#D4AF37]" /> Últimos Leads via Scanner Inteligente
               </h2>
             </div>
             <div className="divide-y divide-white/5">
@@ -152,7 +152,7 @@ export default function DashboardIAPage() {
                   <div key={lead.id || i} className="flex items-center justify-between p-4 hover:bg-[#151515] transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#bf953f] flex items-center justify-center text-xs font-bold text-black">
-                        PDF
+                        DOC
                       </div>
                       <div>
                         <p className="text-sm font-medium text-white">{lead.nome || 'Sem nome'}</p>
@@ -180,7 +180,7 @@ export default function DashboardIAPage() {
                 ))}
               {leads.filter((l: any) => l.origem === 'scanner_pdf').length === 0 && (
                 <div className="px-4 py-12 text-center text-gray-500">
-                  Nenhum PDF processado ainda. Use o Scanner para começar.
+                  Nenhum documento processado ainda. Use o Scanner para começar.
                 </div>
               )}
             </div>

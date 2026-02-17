@@ -31,9 +31,10 @@ export default function HeaderV2() {
 
   const menuItems = [
     { label: 'Início',        section: 'hero' },
-    { label: 'Comparativo',   section: 'comparativo' },
+    { label: 'Comparativo',   section: 'pratica' },
+    { label: 'Método',        section: 'metodo' },
+    { label: 'Tecnologia IA', section: 'ia' },
     { label: 'Calculadora',   section: 'calculadora' },
-    { label: 'Resultados',    section: 'case-studies' },
     { label: 'Depoimentos',   section: 'testimonials' },
     { label: 'FAQ',           section: 'faq' },
   ];

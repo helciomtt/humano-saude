@@ -565,7 +565,7 @@ export default function AIPerformancePage() {
                   <button
                     onClick={handleChat}
                     disabled={chatLoading || !chatInput.trim()}
-                    className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#bf953f] disabled:opacity-50"
+                    className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#bf953f] disabled:opacity-50"
                   >
                     <Send className="h-4 w-4" />
                   </button>

@@ -6,6 +6,7 @@ import CorretorSidebar from './components/CorretorSidebar';
 import { Toaster } from '@/components/ui/sonner';
 import { Shield, ArrowRight, LogOut, Clock, FileText, Landmark } from 'lucide-react';
 import { getCorretorIdFromCookie } from './hooks/useCorretorToken';
+import GuidedTour from '@/app/components/tour/GuidedTour';
 
 export default function CorretorLayout({
   children,
@@ -99,7 +100,9 @@ export default function CorretorLayout({
       </div>
 
       {/* Sidebar do Corretor */}
-      <CorretorSidebar />
+      <div data-tour="corretor-sidebar">
+        <CorretorSidebar />
+      </div>
 
       {/* Main Content */}
       <div className="relative z-10 transition-all duration-300 lg:ml-20">
@@ -175,6 +178,7 @@ export default function CorretorLayout({
       </div>
       
       <Toaster position="top-right" richColors closeButton />
+      <GuidedTour role="corretor" />
     </div>
   );
 }

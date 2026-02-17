@@ -27,16 +27,40 @@ export interface CotacaoOutput {
   observacoes: string[];
 }
 
-export interface PDFExtraido {
+export interface DocumentoExtraido {
   idades: number[];
   operadora: string | null;
   valor_atual: number | null;
   tipo_plano: string | null;
   nome_beneficiarios: string[];
+  nome_completo?: string | null;
+  cpf?: string | null;
+  rg?: string | null;
+  cnpj?: string | null;
+  razao_social?: string | null;
+  estado_civil?: string | null;
+  email?: string | null;
+  telefone?: string | null;
+  endereco?: string | null;
+  data_nascimento?: string | null;
+  socios_detectados?: string[];
+  total_socios?: number | null;
   observacoes: string | null;
   confianca: string;
   texto_extraido_preview: string | null;
   total_caracteres: number;
+}
+
+export type PDFExtraido = DocumentoExtraido;
+
+export interface DocumentoExtractionContext {
+  scope?: 'empresa' | 'adesao' | 'beneficiario';
+  doc_type?: string;
+  proposal_category?: string;
+  beneficiary_id?: string;
+  beneficiary_name?: string;
+  beneficiary_role?: string;
+  partner_id?: string | null;
 }
 
 export const apiService = {
@@ -68,9 +92,15 @@ export const apiService = {
     return response.json();
   },
 
-  async extrairPDF(file: File): Promise<PDFExtraido> {
+  async extrairDocumento(
+    file: File,
+    context?: DocumentoExtractionContext,
+  ): Promise<DocumentoExtraido> {
     const formData = new FormData();
     formData.append('file', file);
+    if (context) {
+      formData.append('context', JSON.stringify(context));
+    }
 
     const response = await fetch(`${API_BASE_URL}/api/v1/pdf/extrair`, {
       method: 'POST',
@@ -79,10 +109,14 @@ export const apiService = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || 'Erro ao extrair dados do PDF');
+      throw new Error(error.detail || 'Erro ao extrair dados do documento');
     }
 
     return response.json();
+  },
+
+  async extrairPDF(file: File, context?: DocumentoExtractionContext): Promise<DocumentoExtraido> {
+    return this.extrairDocumento(file, context);
   },
 
   /**
@@ -126,11 +160,17 @@ export const apiService = {
   },
 
   /**
-   * Extrair PDF via proxy Next.js (evita CORS)
+   * Extrair documento via proxy Next.js (evita CORS)
    */
-  async extrairPDFProxy(file: File): Promise<PDFExtraido> {
+  async extrairDocumentoProxy(
+    file: File,
+    context?: DocumentoExtractionContext,
+  ): Promise<DocumentoExtraido> {
     const formData = new FormData();
     formData.append('file', file);
+    if (context) {
+      formData.append('context', JSON.stringify(context));
+    }
 
     const response = await fetch(`${PROXY_BASE}/api/pdf`, {
       method: 'POST',
@@ -139,10 +179,14 @@ export const apiService = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Erro ao processar PDF');
+      throw new Error(error.error || 'Erro ao processar documento');
     }
 
     return response.json();
+  },
+
+  async extrairPDFProxy(file: File, context?: DocumentoExtractionContext): Promise<DocumentoExtraido> {
+    return this.extrairDocumentoProxy(file, context);
   },
 
   /**

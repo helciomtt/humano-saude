@@ -99,7 +99,7 @@ export default function SegurancaPage() {
           <button
             onClick={handleChangePassword}
             disabled={!passwords.current || !passwords.new || passwords.new !== passwords.confirm || changing}
-            className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black hover:bg-[#F6E05E] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white hover:bg-[#F6E05E] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {changing ? 'Alterando...' : 'Alterar Senha'}
           </button>

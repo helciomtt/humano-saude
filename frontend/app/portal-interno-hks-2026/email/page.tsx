@@ -548,7 +548,7 @@ export default function EmailAdminPage() {
                 <button
                   onClick={handleResend}
                   disabled={resending}
-                  className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black hover:bg-[#F6E05E] transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white hover:bg-[#F6E05E] transition-colors disabled:opacity-50"
                 >
                   {resending ? (
                     <><RefreshCw className="h-4 w-4 animate-spin" /> Reenviando...</>

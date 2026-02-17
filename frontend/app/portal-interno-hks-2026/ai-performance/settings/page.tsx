@@ -68,7 +68,7 @@ export default function AISettingsPage() {
         </div>
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#bf953f]"
+          className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#bf953f]"
         >
           {saved ? <CheckCircle className="h-4 w-4" /> : <Save className="h-4 w-4" />}
           {saved ? 'Salvo!' : 'Salvar'}

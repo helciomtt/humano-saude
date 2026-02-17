@@ -3,6 +3,7 @@
 import DockSidebar from '../components/DockSidebar';
 import { Toaster } from '@/components/ui/sonner';
 import NotificationBell from '@/components/notifications/NotificationBell';
+import GuidedTour from '@/app/components/tour/GuidedTour';
 
 export default function DashboardLayout({
   children,
@@ -10,7 +11,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen bg-[#050505] text-gray-100">
+    <div className="admin-panel relative min-h-screen bg-[#050505] text-gray-100">
       {/* Background Effects - Black Piano Premium com Gold Premium */}
       <div className="pointer-events-none fixed inset-0 z-0">
         {/* Gradiente Radial de Profundidade */}
@@ -42,12 +43,14 @@ export default function DashboardLayout({
       </div>
 
       {/* DockSidebar Enterprise - 25 itens, 8 grupos, Framer Motion */}
-      <DockSidebar />
+      <div data-tour="admin-sidebar">
+        <DockSidebar />
+      </div>
 
       {/* Main Content - Com margem para a sidebar */}
       <div className="relative z-10 transition-all duration-300 lg:ml-20">
         {/* Top Bar — Notification Bell */}
-        <div className="flex items-center justify-end px-4 lg:px-6 pt-4 lg:pt-5">
+        <div data-tour="admin-topbar" className="flex items-center justify-end px-4 lg:px-6 pt-4 lg:pt-5">
           <NotificationBell corretorId="admin" />
         </div>
 
@@ -57,6 +60,21 @@ export default function DashboardLayout({
       
       {/* Toast Notifications */}
       <Toaster position="top-right" richColors closeButton />
+      <GuidedTour role="admin" />
+
+      <style jsx global>{`
+        .admin-panel [data-slot="button"][class*="bg-[#D4AF37]"],
+        .admin-panel [data-slot="button"][class*="from-[#D4AF37]"],
+        .admin-panel [data-slot="button"][class*="to-[#D4AF37]"] {
+          color: #000000 !important;
+        }
+
+        .admin-panel [data-slot="button"][class*="bg-[#D4AF37]"] svg,
+        .admin-panel [data-slot="button"][class*="from-[#D4AF37]"] svg,
+        .admin-panel [data-slot="button"][class*="to-[#D4AF37]"] svg {
+          color: currentColor !important;
+        }
+      `}</style>
     </div>
   );
 }

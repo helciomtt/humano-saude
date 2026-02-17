@@ -106,7 +106,7 @@ export default function EscalaAutomaticaPage() {
         <button
           onClick={analyzeScale}
           disabled={analyzing}
-          className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#bf953f] disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#bf953f] disabled:opacity-50"
         >
           {analyzing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
           {analyzing ? 'Analisando...' : 'Analisar Escala'}

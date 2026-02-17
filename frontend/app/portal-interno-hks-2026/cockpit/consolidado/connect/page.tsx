@@ -197,7 +197,7 @@ export default function ConnectPage() {
                       <button
                         onClick={() => handleSave(account.platform)}
                         disabled={saving === account.platform || !formData[`${account.platform}-accountId`]}
-                        className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black hover:bg-[#D4AF37]/80 transition-colors disabled:opacity-40 flex items-center gap-2"
+                        className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white hover:bg-[#D4AF37]/80 transition-colors disabled:opacity-40 flex items-center gap-2"
                       >
                         {saving === account.platform ? (
                           <RefreshCw className="h-4 w-4 animate-spin" />

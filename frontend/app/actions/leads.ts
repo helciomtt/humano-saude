@@ -3,6 +3,7 @@
 import { createServiceClient } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
 import { logger } from '@/lib/logger';
+import { createPropostaFilaEntry, type PropostaFilaStatus } from '@/app/actions/propostas-fila';
 
 // Tipo para os dados do lead vindos do backend Python
 export type ScannedLeadData = {
@@ -15,8 +16,12 @@ export type ScannedLeadData = {
   economia_estimada?: number;
   valor_proposto?: number;
   tipo_contratacao?: string;
-  dados_pdf?: any;
+  dados_pdf?: unknown;
   observacoes?: string;
+  corretor_id?: string;
+  registrar_fila_proposta?: boolean;
+  permitir_lead_existente?: boolean;
+  status_inicial_fila?: PropostaFilaStatus;
 };
 
 // Tipo para a resposta da função
@@ -26,6 +31,490 @@ export type SaveLeadResponse = {
   error?: string;
   message?: string;
 };
+
+type ServiceSupabaseClient = ReturnType<typeof createServiceClient>;
+
+type CrmStageSeed = {
+  id: string;
+  probabilidade: number | null;
+};
+
+function normalizeEmailForStorage(value?: string): string | null {
+  if (!value) return null;
+  const normalized = value.trim().toLowerCase();
+  return normalized.length > 0 ? normalized : null;
+}
+
+function normalizePhoneDigits(value: string): string {
+  return value.replace(/\D/g, '');
+}
+
+function splitLeadName(fullName: string): { nome: string; sobrenome: string | null } {
+  const cleaned = fullName.trim().replace(/\s+/g, ' ');
+  if (!cleaned) return { nome: 'Lead', sobrenome: null };
+
+  const parts = cleaned.split(' ');
+  const nome = parts.shift() || 'Lead';
+  const sobrenome = parts.length > 0 ? parts.join(' ') : null;
+  return { nome, sobrenome };
+}
+
+function extractScannerCategory(dadosPdf: unknown): string | null {
+  if (!dadosPdf || typeof dadosPdf !== 'object') return null;
+  const candidate = (dadosPdf as { categoria?: unknown }).categoria;
+  return typeof candidate === 'string' && candidate.trim().length > 0 ? candidate.trim() : null;
+}
+
+async function resolveInitialCrmStage(
+  sb: ServiceSupabaseClient,
+  pipelineId: string,
+): Promise<CrmStageSeed | null> {
+  const { data: novoLeadStage, error: novoLeadStageError } = await sb
+    .from('crm_stages')
+    .select('id, probabilidade')
+    .eq('pipeline_id', pipelineId)
+    .eq('slug', 'novo_lead')
+    .maybeSingle();
+
+  if (novoLeadStageError) {
+    logger.warn('Não foi possível buscar stage "novo_lead" no CRM', {
+      error: novoLeadStageError.message,
+      pipeline_id: pipelineId,
+    });
+  }
+
+  if (novoLeadStage?.id) {
+    return novoLeadStage;
+  }
+
+  const { data: fallbackStage, error: fallbackStageError } = await sb
+    .from('crm_stages')
+    .select('id, probabilidade')
+    .eq('pipeline_id', pipelineId)
+    .order('posicao', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (fallbackStageError) {
+    logger.warn('Não foi possível buscar stage inicial do CRM por posição', {
+      error: fallbackStageError.message,
+      pipeline_id: pipelineId,
+    });
+    return null;
+  }
+
+  return fallbackStage ?? null;
+}
+
+async function syncLeadToCrm(
+  sb: ServiceSupabaseClient,
+  leadId: string,
+  leadData: ScannedLeadData,
+  ownerCorretorId: string | null = null,
+): Promise<void> {
+  const scannerCategory = extractScannerCategory(leadData.dados_pdf);
+  const tags = [
+    'scanner_inteligente',
+    scannerCategory ? `modalidade:${scannerCategory}` : null,
+    ownerCorretorId ? `corretor:${ownerCorretorId}` : null,
+  ].filter((tag): tag is string => Boolean(tag));
+
+  const { data: pipeline, error: pipelineError } = await sb
+    .from('crm_pipelines')
+    .select('id')
+    .eq('is_active', true)
+    .order('is_default', { ascending: false })
+    .order('posicao', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (pipelineError || !pipeline?.id) {
+    logger.warn('Sync CRM: pipeline ativo não encontrado', {
+      error: pipelineError?.message,
+      lead_id: leadId,
+    });
+    return;
+  }
+
+  const stage = await resolveInitialCrmStage(sb, pipeline.id);
+  if (!stage?.id) {
+    logger.warn('Sync CRM: stage inicial não encontrado', {
+      pipeline_id: pipeline.id,
+      lead_id: leadId,
+    });
+    return;
+  }
+
+  const email = normalizeEmailForStorage(leadData.email);
+  const whatsapp = normalizePhoneDigits(leadData.whatsapp);
+  const { nome, sobrenome } = splitLeadName(leadData.nome);
+
+  let contactId: string | null = null;
+
+  const { data: existingContactByLead, error: contactByLeadError } = await sb
+    .from('crm_contacts')
+    .select('id')
+    .eq('lead_id', leadId)
+    .maybeSingle();
+
+  if (contactByLeadError) {
+    logger.warn('Sync CRM: erro ao buscar contato por lead_id', {
+      error: contactByLeadError.message,
+      lead_id: leadId,
+    });
+  } else if (existingContactByLead?.id) {
+    contactId = existingContactByLead.id;
+  }
+
+  if (!contactId && whatsapp) {
+    const { data: existingContactByWhatsapp, error: contactByWhatsappError } = await sb
+      .from('crm_contacts')
+      .select('id')
+      .eq('whatsapp', whatsapp)
+      .limit(1)
+      .maybeSingle();
+
+    if (contactByWhatsappError) {
+      logger.warn('Sync CRM: erro ao buscar contato por WhatsApp', {
+        error: contactByWhatsappError.message,
+        lead_id: leadId,
+      });
+    } else if (existingContactByWhatsapp?.id) {
+      contactId = existingContactByWhatsapp.id;
+    }
+  }
+
+  if (contactId) {
+    const contactUpdates: {
+      lead_id: string;
+      nome: string;
+      sobrenome: string | null;
+      lifecycle_stage: 'lead';
+      lead_source: string;
+      tags: string[];
+      email?: string;
+      telefone?: string;
+      whatsapp?: string;
+      owner_corretor_id?: string | null;
+    } = {
+      lead_id: leadId,
+      nome,
+      sobrenome,
+      lifecycle_stage: 'lead',
+      lead_source: 'scanner_inteligente',
+      tags,
+    };
+
+    if (email) {
+      contactUpdates.email = email;
+    }
+    if (whatsapp) {
+      contactUpdates.telefone = whatsapp;
+      contactUpdates.whatsapp = whatsapp;
+    }
+    if (ownerCorretorId) {
+      contactUpdates.owner_corretor_id = ownerCorretorId;
+    }
+
+    const { error: updateContactError } = await sb
+      .from('crm_contacts')
+      .update(contactUpdates)
+      .eq('id', contactId);
+
+    if (updateContactError) {
+      logger.warn('Sync CRM: erro ao atualizar contato existente', {
+        error: updateContactError.message,
+        lead_id: leadId,
+        contact_id: contactId,
+      });
+    }
+  } else {
+    const { data: insertedContact, error: insertContactError } = await sb
+      .from('crm_contacts')
+      .insert({
+        company_id: null,
+        lead_id: leadId,
+        owner_corretor_id: ownerCorretorId,
+        nome,
+        sobrenome,
+        email,
+        telefone: whatsapp || null,
+        whatsapp: whatsapp || null,
+        cpf: null,
+        data_nascimento: null,
+        cargo: null,
+        lifecycle_stage: 'lead',
+        lead_source: 'scanner_inteligente',
+        score: 0,
+        score_motivo: null,
+        ultimo_contato: null,
+        total_atividades: 0,
+        avatar_url: null,
+        tags,
+        custom_fields: {},
+      })
+      .select('id')
+      .single();
+
+    if (insertContactError) {
+      logger.warn('Sync CRM: erro ao criar contato', {
+        error: insertContactError.message,
+        lead_id: leadId,
+      });
+    } else {
+      contactId = insertedContact.id;
+    }
+  }
+
+  const { data: existingDeal, error: existingDealError } = await sb
+    .from('crm_deals')
+    .select('id, contact_id, owner_corretor_id')
+    .eq('lead_id', leadId)
+    .limit(1)
+    .maybeSingle();
+
+  if (existingDealError) {
+    logger.warn('Sync CRM: erro ao buscar deal existente', {
+      error: existingDealError.message,
+      lead_id: leadId,
+    });
+    return;
+  }
+
+  if (existingDeal?.id) {
+    const dealUpdates: { contact_id?: string; owner_corretor_id?: string } = {};
+    if (!existingDeal.contact_id && contactId) {
+      dealUpdates.contact_id = contactId;
+    }
+    if (!existingDeal.owner_corretor_id && ownerCorretorId) {
+      dealUpdates.owner_corretor_id = ownerCorretorId;
+    }
+
+    if (Object.keys(dealUpdates).length > 0) {
+      const { error: updateDealContactError } = await sb
+        .from('crm_deals')
+        .update(dealUpdates)
+        .eq('id', existingDeal.id);
+
+      if (updateDealContactError) {
+        logger.warn('Sync CRM: erro ao vincular contato em deal existente', {
+          error: updateDealContactError.message,
+          deal_id: existingDeal.id,
+          contact_id: contactId,
+        });
+      }
+    }
+    return;
+  }
+
+  const { data: stageTail, error: stageTailError } = await sb
+    .from('crm_deals')
+    .select('posicao')
+    .eq('stage_id', stage.id)
+    .order('posicao', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (stageTailError) {
+    logger.warn('Sync CRM: erro ao calcular próxima posição do deal', {
+      error: stageTailError.message,
+      stage_id: stage.id,
+      lead_id: leadId,
+    });
+  }
+
+  const nextPosition = typeof stageTail?.posicao === 'number' ? stageTail.posicao + 1 : 0;
+  const valorDeal = leadData.valor_proposto ?? leadData.valor_atual ?? null;
+
+  const { data: insertedDeal, error: insertDealError } = await sb
+    .from('crm_deals')
+    .insert({
+      pipeline_id: pipeline.id,
+      stage_id: stage.id,
+      contact_id: contactId,
+      company_id: null,
+      owner_corretor_id: ownerCorretorId,
+      crm_card_id: null,
+      lead_id: leadId,
+      titulo: `Proposta ${leadData.nome}`,
+      valor: valorDeal,
+      valor_recorrente: valorDeal,
+      moeda: 'BRL',
+      data_previsao_fechamento: null,
+      data_ganho: null,
+      data_perda: null,
+      probabilidade: stage.probabilidade ?? 10,
+      posicao: nextPosition,
+      motivo_perda: null,
+      motivo_perda_detalhe: null,
+      score: 0,
+      prioridade: 'media',
+      is_hot: false,
+      is_stale: false,
+      dias_no_stage: 0,
+      tags,
+      custom_fields: {},
+      metadata: {
+        origem: 'scanner_inteligente',
+        lead_id: leadId,
+        corretor_id: ownerCorretorId,
+      },
+    })
+    .select('id')
+    .single();
+
+  if (insertDealError) {
+    logger.warn('Sync CRM: erro ao criar deal', {
+      error: insertDealError.message,
+      lead_id: leadId,
+      pipeline_id: pipeline.id,
+      stage_id: stage.id,
+    });
+    return;
+  }
+
+  const { error: activityError } = await sb
+    .from('crm_activities')
+    .insert({
+      deal_id: insertedDeal.id,
+      contact_id: contactId,
+      company_id: null,
+      owner_corretor_id: ownerCorretorId,
+      tipo: 'sistema',
+      assunto: 'Lead criado via Scanner Inteligente',
+      descricao: `Lead "${leadData.nome}" incluído automaticamente no pipeline.`,
+      metadata: {
+        lead_id: leadId,
+        origem: 'scanner_inteligente',
+        corretor_id: ownerCorretorId,
+      },
+    });
+
+  if (activityError) {
+    logger.warn('Sync CRM: erro ao criar atividade inicial do deal', {
+      error: activityError.message,
+      deal_id: insertedDeal.id,
+      lead_id: leadId,
+    });
+  }
+}
+
+async function syncLeadToCorretorKanban(
+  sb: ServiceSupabaseClient,
+  leadId: string,
+  leadData: ScannedLeadData,
+  corretorId: string,
+): Promise<void> {
+  const { data: existingCard, error: existingCardError } = await sb
+    .from('crm_cards')
+    .select('id')
+    .eq('corretor_id', corretorId)
+    .eq('lead_id', leadId)
+    .maybeSingle();
+
+  if (existingCardError) {
+    logger.warn('Sync CRM Corretor: erro ao buscar card existente', {
+      error: existingCardError.message,
+      lead_id: leadId,
+      corretor_id: corretorId,
+    });
+    return;
+  }
+
+  const subtitle = [leadData.operadora_atual, leadData.valor_atual ? `R$ ${leadData.valor_atual.toFixed(2)}` : null]
+    .filter((item): item is string => Boolean(item))
+    .join(' · ') || null;
+
+  if (existingCard?.id) {
+    const { error: updateError } = await sb
+      .from('crm_cards')
+      .update({
+        titulo: leadData.nome,
+        subtitulo: subtitle,
+        valor_estimado: leadData.valor_proposto ?? leadData.valor_atual ?? null,
+      })
+      .eq('id', existingCard.id);
+
+    if (updateError) {
+      logger.warn('Sync CRM Corretor: erro ao atualizar card existente', {
+        error: updateError.message,
+        card_id: existingCard.id,
+      });
+    }
+
+    return;
+  }
+
+  const { data: stageTail, error: tailError } = await sb
+    .from('crm_cards')
+    .select('posicao')
+    .eq('corretor_id', corretorId)
+    .eq('coluna_slug', 'novo_lead')
+    .order('posicao', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (tailError) {
+    logger.warn('Sync CRM Corretor: erro ao calcular posição no Kanban', {
+      error: tailError.message,
+      corretor_id: corretorId,
+    });
+  }
+
+  const nextPosition = typeof stageTail?.posicao === 'number' ? stageTail.posicao + 1 : 0;
+  const { data: insertedCard, error: insertCardError } = await sb
+    .from('crm_cards')
+    .insert({
+      corretor_id: corretorId,
+      lead_id: leadId,
+      coluna_slug: 'novo_lead',
+      titulo: leadData.nome,
+      subtitulo: subtitle,
+      valor_estimado: leadData.valor_proposto ?? leadData.valor_atual ?? null,
+      posicao: nextPosition,
+      score: 0,
+      score_motivo: null,
+      ultima_interacao_proposta: null,
+      total_interacoes: 0,
+      tags: ['scanner_inteligente'],
+      prioridade: 'media',
+      metadata: {
+        origem: 'scanner_inteligente',
+      },
+    })
+    .select('id')
+    .single();
+
+  if (insertCardError) {
+    logger.warn('Sync CRM Corretor: erro ao criar card', {
+      error: insertCardError.message,
+      lead_id: leadId,
+      corretor_id: corretorId,
+    });
+    return;
+  }
+
+  const { error: interactionError } = await sb
+    .from('crm_interacoes')
+    .insert({
+      card_id: insertedCard.id,
+      corretor_id: corretorId,
+      lead_id: leadId,
+      tipo: 'sistema',
+      titulo: 'Lead criado via Scanner Inteligente',
+      descricao: `Lead "${leadData.nome}" inserido automaticamente no pipeline.`,
+      metadata: {
+        origem: 'scanner_inteligente',
+      },
+    });
+
+  if (interactionError) {
+    logger.warn('Sync CRM Corretor: erro ao registrar interação inicial', {
+      error: interactionError.message,
+      card_id: insertedCard.id,
+    });
+  }
+}
 
 /**
  * Server Action: Salva um lead escaneado pela IA no Supabase
@@ -48,83 +537,220 @@ export async function saveScannedLead(
       };
     }
 
+    const nowIso = new Date().toISOString();
+    const normalizedWhatsapp = normalizePhoneDigits(leadData.whatsapp);
+    if (!normalizedWhatsapp) {
+      return {
+        success: false,
+        error: 'validation_error',
+        message: 'WhatsApp inválido'
+      };
+    }
+
+    const scannerCategory = extractScannerCategory(leadData.dados_pdf);
+    const leadOrigin = leadData.corretor_id ? 'scanner_inteligente_corretor' : 'scanner_inteligente';
+    const shouldQueue = leadData.registrar_fila_proposta ?? Boolean(leadData.corretor_id);
+
     // Verifica se já existe um lead com esse WhatsApp
-    const { data: existingLead } = await sb
+    const { data: existingLead, error: existingLeadError } = await sb
       .from('insurance_leads')
-      .select('id, nome')
-      .eq('whatsapp', leadData.whatsapp)
-      .single();
+      .select('id, nome, corretor_id, historico')
+      .eq('whatsapp', normalizedWhatsapp)
+      .maybeSingle();
 
-    if (existingLead) {
-      return {
-        success: false,
-        error: 'duplicate_lead',
-        message: `Lead já existe: ${existingLead.nome}`,
-        lead_id: existingLead.id
-      };
+    if (existingLeadError) {
+      logger.warn('Erro ao verificar lead existente por WhatsApp', {
+        error: existingLeadError.message,
+        whatsapp: normalizedWhatsapp,
+      });
     }
 
-    // Prepara os dados para inserção
-    const leadToInsert = {
-      nome: leadData.nome,
-      whatsapp: leadData.whatsapp,
-      email: leadData.email || null,
-      operadora_atual: leadData.operadora_atual || null,
-      valor_atual: leadData.valor_atual || null,
-      idades: leadData.idades,
-      economia_estimada: leadData.economia_estimada || null,
-      valor_proposto: leadData.valor_proposto || null,
-      tipo_contratacao: leadData.tipo_contratacao || null,
-      status: 'novo' as const,
-      origem: 'scanner_pdf',
-      prioridade: 'media',
-      dados_pdf: leadData.dados_pdf || null,
-      observacoes: leadData.observacoes || null,
-      historico: [
+    let targetLeadId = '';
+    let reusedExistingLead = false;
+
+    if (existingLead?.id) {
+      if (!leadData.permitir_lead_existente) {
+        return {
+          success: false,
+          error: 'duplicate_lead',
+          message: `Lead já existe: ${existingLead.nome}`,
+          lead_id: existingLead.id
+        };
+      }
+
+      reusedExistingLead = true;
+      targetLeadId = existingLead.id;
+
+      const existingHistory = Array.isArray(existingLead.historico) ? existingLead.historico : [];
+      const nextHistory = [
+        ...existingHistory,
         {
-          timestamp: new Date().toISOString(),
-          evento: 'lead_criado',
-          origem: 'scanner_pdf',
-          detalhes: 'Lead criado automaticamente pelo Scanner de PDF'
-        }
-      ],
-      arquivado: false
-    };
+          timestamp: nowIso,
+          evento: 'nova_proposta_scanner',
+          origem: leadOrigin,
+          detalhes: `Proposta reenviada via Scanner Inteligente${scannerCategory ? ` (${scannerCategory})` : ''}`,
+        },
+      ];
 
-    // Insere o lead no Supabase
-    const { data, error } = await sb
-      .from('insurance_leads')
-      .insert(leadToInsert)
-      .select('id')
-      .single();
-
-    if (error) {
-      logger.error('Erro ao salvar lead no Supabase', error);
-      return {
-        success: false,
-        error: 'database_error',
-        message: `Erro ao salvar no banco: ${error.message}`
+      const leadUpdates: Record<string, unknown> = {
+        historico: nextHistory,
+        dados_pdf: leadData.dados_pdf || null,
+        observacoes: leadData.observacoes || null,
+        updated_at: nowIso,
       };
+
+      const normalizedEmail = normalizeEmailForStorage(leadData.email);
+      if (normalizedEmail) leadUpdates.email = normalizedEmail;
+      if (leadData.operadora_atual) leadUpdates.operadora_atual = leadData.operadora_atual;
+      if (leadData.valor_atual != null) leadUpdates.valor_atual = leadData.valor_atual;
+      if (leadData.economia_estimada != null) leadUpdates.economia_estimada = leadData.economia_estimada;
+      if (leadData.valor_proposto != null) leadUpdates.valor_proposto = leadData.valor_proposto;
+      if (leadData.tipo_contratacao) leadUpdates.tipo_contratacao = leadData.tipo_contratacao;
+      if (Array.isArray(leadData.idades) && leadData.idades.length > 0) leadUpdates.idades = leadData.idades;
+      if (Object.prototype.hasOwnProperty.call(leadData, 'corretor_id')) {
+        leadUpdates.corretor_id = leadData.corretor_id || null;
+      }
+
+      const { error: updateExistingError } = await sb
+        .from('insurance_leads')
+        .update(leadUpdates)
+        .eq('id', existingLead.id);
+
+      if (updateExistingError) {
+        logger.warn('Lead existente encontrado, mas atualização incremental falhou', {
+          lead_id: existingLead.id,
+          error: updateExistingError.message,
+        });
+      }
+    } else {
+      // Prepara os dados para inserção
+      const leadToInsert = {
+        nome: leadData.nome,
+        whatsapp: normalizedWhatsapp,
+        email: normalizeEmailForStorage(leadData.email),
+        operadora_atual: leadData.operadora_atual || null,
+        valor_atual: leadData.valor_atual || null,
+        idades: leadData.idades,
+        economia_estimada: leadData.economia_estimada || null,
+        valor_proposto: leadData.valor_proposto || null,
+        tipo_contratacao: leadData.tipo_contratacao || null,
+        status: 'novo' as const,
+        origem: leadOrigin,
+        prioridade: 'media',
+        dados_pdf: leadData.dados_pdf || null,
+        observacoes: leadData.observacoes || null,
+        corretor_id: leadData.corretor_id || null,
+        historico: [
+          {
+            timestamp: nowIso,
+            evento: 'lead_criado',
+            origem: leadOrigin,
+            detalhes: 'Lead criado automaticamente pelo Scanner Inteligente'
+          }
+        ],
+        arquivado: false
+      };
+
+      // Insere o lead no Supabase
+      const { data, error } = await sb
+        .from('insurance_leads')
+        .insert(leadToInsert)
+        .select('id')
+        .single();
+
+      if (error) {
+        logger.error('Erro ao salvar lead no Supabase', error);
+        return {
+          success: false,
+          error: 'database_error',
+          message: `Erro ao salvar no banco: ${error.message}`
+        };
+      }
+
+      targetLeadId = data.id;
     }
 
-    // Revalida o cache da página de leads
+    try {
+      await syncLeadToCrm(sb, targetLeadId, leadData, leadData.corretor_id || null);
+    } catch (crmSyncError: unknown) {
+      logger.warn('Lead criado, mas sync CRM falhou', {
+        lead_id: targetLeadId,
+        error: crmSyncError instanceof Error ? crmSyncError.message : String(crmSyncError),
+      });
+    }
+
+    if (leadData.corretor_id) {
+      try {
+        await syncLeadToCorretorKanban(sb, targetLeadId, leadData, leadData.corretor_id);
+      } catch (kanbanSyncError: unknown) {
+        logger.warn('Lead criado/atualizado, mas sync no Kanban do corretor falhou', {
+          lead_id: targetLeadId,
+          corretor_id: leadData.corretor_id,
+          error: kanbanSyncError instanceof Error ? kanbanSyncError.message : String(kanbanSyncError),
+        });
+      }
+    }
+
+    if (shouldQueue) {
+      const proposalPayload =
+        leadData.dados_pdf && typeof leadData.dados_pdf === 'object' && !Array.isArray(leadData.dados_pdf)
+          ? (leadData.dados_pdf as Record<string, unknown>)
+          : {};
+
+      const queueResult = await createPropostaFilaEntry({
+        lead_id: targetLeadId,
+        corretor_id: leadData.corretor_id || null,
+        categoria: scannerCategory,
+        origem: leadOrigin,
+        dados_proposta: proposalPayload,
+        status: leadData.status_inicial_fila || 'enviada',
+        metadata: {
+          lead_reutilizado: reusedExistingLead,
+        },
+      });
+
+      if (!queueResult.success) {
+        logger.warn('Lead salvo, mas não foi possível registrar na fila de propostas', {
+          lead_id: targetLeadId,
+          error: queueResult.error,
+        });
+      }
+    }
+
+    // Revalida o cache da página de leads e CRM
     revalidatePath('/portal-interno-hks-2026/leads');
     revalidatePath('/portal-interno-hks-2026');
+    revalidatePath('/portal-interno-hks-2026/crm');
+    revalidatePath('/portal-interno-hks-2026/crm/deals');
+    revalidatePath('/portal-interno-hks-2026/crm/contacts');
+    revalidatePath('/portal-interno-hks-2026/propostas/fila');
+    revalidatePath('/dashboard/corretor/crm');
+    revalidatePath('/dashboard/corretor/crm/deals');
+    revalidatePath('/dashboard/corretor/crm/contacts');
+    revalidatePath('/dashboard/corretor/propostas');
+    revalidatePath('/dashboard/corretor/propostas/fila');
 
-    logger.info('Lead salvo com sucesso', { lead_id: data.id });
+    logger.info('Lead salvo com sucesso', {
+      lead_id: targetLeadId,
+      reused_existing: reusedExistingLead,
+      corretor_id: leadData.corretor_id || null,
+    });
 
     return {
       success: true,
-      lead_id: data.id,
-      message: 'Lead salvo com sucesso!'
+      lead_id: targetLeadId,
+      message: reusedExistingLead
+        ? 'Lead existente atualizado e proposta registrada com sucesso!'
+        : 'Lead salvo com sucesso!'
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Erro inesperado ao salvar lead', error);
+    const message = error instanceof Error ? error.message : 'Erro inesperado ao salvar lead';
     return {
       success: false,
       error: 'unexpected_error',
-      message: error?.message || 'Erro inesperado ao salvar lead'
+      message
     };
   }
 }
@@ -172,9 +798,10 @@ export async function getLeads(filters?: {
 
     return { success: true, data: data || [] };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Erro inesperado ao buscar leads', error);
-    return { success: false, data: [], error: error?.message };
+    const message = error instanceof Error ? error.message : 'Erro inesperado ao buscar leads';
+    return { success: false, data: [], error: message };
   }
 }
 
@@ -292,12 +919,13 @@ export async function updateLeadStatus(
       message: 'Status atualizado com sucesso!'
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Erro ao atualizar status', error);
+    const message = error instanceof Error ? error.message : 'Erro inesperado';
     return {
       success: false,
       error: 'unexpected_error',
-      message: error?.message || 'Erro inesperado'
+      message
     };
   }
 }
@@ -322,9 +950,194 @@ export async function getDashboardStats() {
 
     return { success: true, data };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Erro ao buscar estatísticas', error);
-    return { success: false, data: null, error: error?.message };
+    const message = error instanceof Error ? error.message : 'Erro ao buscar estatísticas';
+    return { success: false, data: null, error: message };
+  }
+}
+
+export type DashboardPeriod = 'hoje' | 'ontem' | '7d' | '30d' | 'mes' | 'dia';
+
+export type DashboardEssentials = {
+  periodo: DashboardPeriod;
+  inicio: string;
+  fim: string;
+  leads_periodo: number;
+  propostas_enviadas: number;
+  vendas_fechadas: number;
+  pdfs_processados: number;
+  economia_estimada_total: number;
+  taxa_fechamento: number;
+  clientes_abertos_potencial: number;
+  clientes_sem_contato: number;
+  clientes_sem_contato_48h: number;
+  leads_estagnados_7d: number;
+  valor_potencial_aberto: number;
+  pipeline_deals_abertos: number;
+  pipeline_deals_estagnados: number;
+  pipeline_valor_aberto: number;
+};
+
+export async function getDashboardEssentials(periodo: DashboardPeriod = 'hoje') {
+  try {
+    const sb = createServiceClient();
+    const now = new Date();
+    const start = new Date(now);
+    const end = new Date(now);
+    const normalizedPeriod = periodo === 'dia' ? 'hoje' : periodo;
+
+    switch (normalizedPeriod) {
+      case 'hoje': {
+        start.setHours(0, 0, 0, 0);
+        break;
+      }
+      case 'ontem': {
+        start.setDate(start.getDate() - 1);
+        start.setHours(0, 0, 0, 0);
+
+        end.setDate(end.getDate() - 1);
+        end.setHours(23, 59, 59, 999);
+        break;
+      }
+      case '7d': {
+        start.setDate(start.getDate() - 6);
+        start.setHours(0, 0, 0, 0);
+        break;
+      }
+      case '30d': {
+        start.setDate(start.getDate() - 29);
+        start.setHours(0, 0, 0, 0);
+        break;
+      }
+      case 'mes': {
+        start.setDate(1);
+        start.setHours(0, 0, 0, 0);
+        break;
+      }
+      default: {
+        start.setHours(0, 0, 0, 0);
+      }
+    }
+
+    const startIso = start.toISOString();
+    const endIso = end.toISOString();
+
+    const { data, error } = await sb
+      .from('insurance_leads')
+      .select('status, origem, economia_estimada')
+      .gte('created_at', startIso)
+      .lte('created_at', endIso)
+      .eq('arquivado', false);
+
+    if (error) {
+      logger.error('Erro ao buscar métricas essenciais do dashboard', error);
+      return { success: false, data: null, error: error.message };
+    }
+
+    const leads = data || [];
+    const leadsPeriodo = leads.length;
+    const propostasEnviadas = leads.filter((lead) => lead.status === 'proposta_enviada').length;
+    const vendasFechadas = leads.filter((lead) => lead.status === 'ganho').length;
+    const pdfsProcessados = leads.filter(
+      (lead) => lead.origem === 'scanner_pdf' || lead.origem === 'scanner_inteligente',
+    ).length;
+    const economiaEstimadaTotal = leads.reduce(
+      (sum, lead) => sum + Number(lead.economia_estimada || 0),
+      0,
+    );
+
+    const taxaFechamento =
+      leadsPeriodo > 0 ? Number(((vendasFechadas / leadsPeriodo) * 100).toFixed(1)) : 0;
+
+    const { data: backlogLeads, error: backlogLeadsError } = await sb
+      .from('insurance_leads')
+      .select('status, created_at, updated_at, valor_proposto, valor_atual')
+      .eq('arquivado', false);
+
+    if (backlogLeadsError) {
+      logger.error('Erro ao buscar backlog estratégico de leads', backlogLeadsError);
+      return { success: false, data: null, error: backlogLeadsError.message };
+    }
+
+    const openStatuses = new Set(['novo', 'contatado', 'negociacao', 'proposta_enviada']);
+    const fortyEightHoursAgo = now.getTime() - 48 * 60 * 60 * 1000;
+    const sevenDaysAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+
+    let clientesAbertosPotencial = 0;
+    let clientesSemContato = 0;
+    let clientesSemContato48h = 0;
+    let leadsEstagnados7d = 0;
+    let valorPotencialAberto = 0;
+
+    (backlogLeads || []).forEach((lead) => {
+      const status = typeof lead.status === 'string' ? lead.status : '';
+      const isOpen = openStatuses.has(status);
+      if (!isOpen) return;
+
+      clientesAbertosPotencial += 1;
+      valorPotencialAberto += Number(lead.valor_proposto ?? lead.valor_atual ?? 0);
+
+      if (status === 'novo') {
+        clientesSemContato += 1;
+        const createdAtTime = Date.parse(String(lead.created_at || ''));
+        if (Number.isFinite(createdAtTime) && createdAtTime <= fortyEightHoursAgo) {
+          clientesSemContato48h += 1;
+        }
+      }
+
+      const updatedAtTime = Date.parse(String(lead.updated_at || ''));
+      if (Number.isFinite(updatedAtTime) && updatedAtTime <= sevenDaysAgo) {
+        leadsEstagnados7d += 1;
+      }
+    });
+
+    const { data: pipelineDeals, error: pipelineDealsError } = await sb
+      .from('crm_deals')
+      .select('valor, is_stale, dias_no_stage')
+      .is('data_perda', null)
+      .is('data_ganho', null);
+
+    if (pipelineDealsError) {
+      logger.error('Erro ao buscar métricas estratégicas do pipeline CRM', pipelineDealsError);
+      return { success: false, data: null, error: pipelineDealsError.message };
+    }
+
+    const pipelineDealsAbertos = (pipelineDeals || []).length;
+    const pipelineDealsEstagnados = (pipelineDeals || []).filter(
+      (deal) => Boolean(deal.is_stale) || Number(deal.dias_no_stage || 0) >= 7,
+    ).length;
+    const pipelineValorAberto = (pipelineDeals || []).reduce(
+      (sum, deal) => sum + Number(deal.valor || 0),
+      0,
+    );
+
+    return {
+      success: true,
+      data: {
+        periodo: normalizedPeriod,
+        inicio: startIso,
+        fim: endIso,
+        leads_periodo: leadsPeriodo,
+        propostas_enviadas: propostasEnviadas,
+        vendas_fechadas: vendasFechadas,
+        pdfs_processados: pdfsProcessados,
+        economia_estimada_total: economiaEstimadaTotal,
+        taxa_fechamento: taxaFechamento,
+        clientes_abertos_potencial: clientesAbertosPotencial,
+        clientes_sem_contato: clientesSemContato,
+        clientes_sem_contato_48h: clientesSemContato48h,
+        leads_estagnados_7d: leadsEstagnados7d,
+        valor_potencial_aberto: valorPotencialAberto,
+        pipeline_deals_abertos: pipelineDealsAbertos,
+        pipeline_deals_estagnados: pipelineDealsEstagnados,
+        pipeline_valor_aberto: pipelineValorAberto,
+      } as DashboardEssentials,
+    };
+  } catch (error: unknown) {
+    logger.error('Erro inesperado ao buscar métricas essenciais', error);
+    const message = error instanceof Error ? error.message : 'Erro inesperado';
+    return { success: false, data: null, error: message };
   }
 }
 
@@ -489,12 +1302,13 @@ export async function saveCalculadoraLead(
       lead_id: newLead?.id,
       message: 'Lead salvo com sucesso!',
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Erro inesperado (calculadora)', error);
+    const message = error instanceof Error ? error.message : 'Erro inesperado';
     return {
       success: false,
       error: 'unexpected_error',
-      message: error?.message || 'Erro inesperado',
+      message,
     };
   }
 }

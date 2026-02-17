@@ -1723,7 +1723,7 @@ export default function SolicitacoesCorretorPage() {
                     <a
                       href={docPreview.url}
                       download={docPreview.nome}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#D4AF37] text-black text-sm font-semibold hover:bg-[#F6E05E] transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#D4AF37] text-white text-sm font-semibold hover:bg-[#F6E05E] transition-all"
                     >
                       <Download className="h-4 w-4" />
                       Baixar Arquivo

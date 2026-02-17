@@ -115,7 +115,7 @@ export default function PerfilPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black hover:bg-[#F6E05E] transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white hover:bg-[#F6E05E] transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {saving ? 'Salvando...' : 'Salvar'}
@@ -149,7 +149,7 @@ export default function PerfilPage() {
                 <>
                   <button
                     onClick={() => fotoInputRef.current?.click()}
-                    className="rounded-full bg-[#D4AF37] p-1.5 text-black hover:bg-[#F6E05E] transition-colors"
+                    className="rounded-full bg-[#D4AF37] p-1.5 text-white hover:bg-[#F6E05E] transition-colors"
                     title="Alterar foto"
                   >
                     <Camera className="h-3.5 w-3.5" />

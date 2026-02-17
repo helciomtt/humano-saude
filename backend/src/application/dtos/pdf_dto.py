@@ -12,6 +12,8 @@ class PDFExtraidoDTO(BaseModel):
     valor_atual: Optional[float] = None
     tipo_plano: Optional[str] = None
     nome_beneficiarios: List[str] = []
+    socios_detectados: List[str] = []
+    total_socios: Optional[int] = None
     observacoes: Optional[str] = None
     confianca: str = "alta"
     texto_extraido_preview: Optional[str] = None
@@ -25,6 +27,8 @@ class PDFExtraidoDTO(BaseModel):
                 "valor_atual": 1250.50,
                 "tipo_plano": "ADESAO",
                 "nome_beneficiarios": ["João Silva", "Maria Silva", "Pedro Silva"],
+                "socios_detectados": ["João Silva", "Maria Silva"],
+                "total_socios": 2,
                 "observacoes": "Plano com cobertura nacional",
                 "confianca": "alta",
                 "texto_extraido_preview": "PROPOSTA DE ADESÃO...",

@@ -44,7 +44,7 @@ export function PageHeader({
         {actionLabel && onAction && (
           <button
             onClick={onAction}
-            className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-black hover:bg-[#F6E05E] transition-colors"
+            className="flex items-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-white hover:bg-[#F6E05E] transition-colors"
           >
             <ActionIcon className="h-4 w-4" />
             {actionLabel}

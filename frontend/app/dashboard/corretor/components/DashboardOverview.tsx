@@ -12,16 +12,14 @@ import {
   ArrowUpRight,
   Sparkles,
   Kanban,
-  FolderOpen,
   Link2,
-  Receipt,
   ArrowRight,
   Zap,
   Target,
   Clock,
+  Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { CorretorDashboard } from '@/lib/types/corretor';
 import { useCorretorDashboard, useRenovacoes } from '../hooks/useCorretorData';
 import { useCrmStats } from '../crm/hooks/useCrmStats';
 
@@ -272,6 +270,71 @@ export default function CorretorDashboardPage({ corretorId }: { corretorId: stri
           delay={0.15}
         />
       </div>
+
+      {/* Propostas - Upload e acompanhamento */}
+      <GlassCard gold>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-[#D4AF37]/10 flex items-center justify-center">
+              <Upload className="h-5 w-5 text-[#D4AF37]" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white">Propostas</h3>
+              <p className="text-xs text-white/50">Suba novos documentos e acompanhe o andamento operacional.</p>
+            </div>
+          </div>
+          <span className="text-[10px] uppercase tracking-wide px-2 py-1 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20">
+            Scanner Inteligente
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Link
+            href="/dashboard/corretor/propostas"
+            className="rounded-xl border border-[#D4AF37]/25 bg-[#D4AF37]/10 p-4 hover:bg-[#D4AF37]/15 transition-colors"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-[#F6E05E]">Subir nova proposta</p>
+              <Upload className="h-4 w-4 text-[#F6E05E]" />
+            </div>
+            <p className="text-xs text-white/70 mt-2">
+              Envie documentos por categoria, valide checklist e salve no CRM.
+            </p>
+          </Link>
+
+          <Link
+            href="/dashboard/corretor/propostas/fila"
+            className="rounded-xl border border-white/15 bg-white/[0.03] p-4 hover:border-white/25 transition-colors"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-white">Acompanhar fila</p>
+              <Clock className="h-4 w-4 text-white/70" />
+            </div>
+            <p className="text-xs text-white/60 mt-2">
+              Veja status: enviada, em análise, boleto gerado e proposta implantada.
+            </p>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 text-center">
+            <p className="text-lg font-bold text-white">{d?.propostas_enviadas ?? 0}</p>
+            <p className="text-[10px] text-white/40 mt-1">Enviadas</p>
+          </div>
+          <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center">
+            <p className="text-lg font-bold text-blue-300">{crmStats?.porColuna?.proposta_enviada ?? 0}</p>
+            <p className="text-[10px] text-white/40 mt-1">Proposta enviada</p>
+          </div>
+          <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-center">
+            <p className="text-lg font-bold text-cyan-300">{crmStats?.porColuna?.documentacao ?? 0}</p>
+            <p className="text-[10px] text-white/40 mt-1">Em documentação</p>
+          </div>
+          <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-center">
+            <p className="text-lg font-bold text-green-300">{d?.fechados ?? 0}</p>
+            <p className="text-[10px] text-white/40 mt-1">Fechadas</p>
+          </div>
+        </div>
+      </GlassCard>
 
       {/* Alertas de Renovação */}
       {(vencidos.length > 0 || vencendo30d.length > 0 || vencendo60d.length > 0) && (

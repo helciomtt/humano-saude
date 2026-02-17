@@ -80,7 +80,7 @@ export default function ContratosPage() {
                 onClick={() => setFilter(key)}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                   filter === key
-                    ? 'bg-[#D4AF37] text-black'
+                    ? 'bg-[#D4AF37] text-white'
                     : 'border border-white/10 text-gray-400 hover:text-white hover:border-white/20'
                 }`}
               >
@@ -91,7 +91,7 @@ export default function ContratosPage() {
               onClick={() => setFilter('')}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                 filter === ''
-                  ? 'bg-[#D4AF37] text-black'
+                  ? 'bg-[#D4AF37] text-white'
                   : 'border border-white/10 text-gray-400 hover:text-white hover:border-white/20'
               }`}
             >

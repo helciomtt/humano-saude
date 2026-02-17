@@ -105,7 +105,7 @@ export default function ChatPage() {
                     <p className="text-xs text-gray-500 truncate">{user.ultimaMensagem}</p>
                   </div>
                   {user.naoLidas > 0 && (
-                    <span className="h-5 w-5 rounded-full bg-[#D4AF37] flex items-center justify-center text-[10px] font-bold text-black">
+                    <span className="h-5 w-5 rounded-full bg-[#D4AF37] flex items-center justify-center text-[10px] font-bold text-white">
                       {user.naoLidas}
                     </span>
                   )}
@@ -140,7 +140,7 @@ export default function ChatPage() {
               <div key={msg.id} className={`flex ${msg.minha ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[70%] rounded-2xl px-4 py-2.5 ${
                   msg.minha
-                    ? 'bg-[#D4AF37] text-black rounded-br-md'
+                    ? 'bg-[#D4AF37] text-white rounded-br-md'
                     : 'bg-[#1a1a1a] text-white rounded-bl-md border border-white/10'
                 }`}>
                   <p className="text-sm">{msg.texto}</p>
@@ -160,7 +160,7 @@ export default function ChatPage() {
                 onChange={(e) => setMensagem(e.target.value)}
                 className="flex-1 rounded-lg border border-white/10 bg-[#151515] px-4 py-2.5 text-sm text-white placeholder:text-gray-600"
               />
-              <button className="rounded-lg bg-[#D4AF37] p-2.5 text-black hover:bg-[#F6E05E] transition-colors">
+              <button className="rounded-lg bg-[#D4AF37] p-2.5 text-white hover:bg-[#F6E05E] transition-colors">
                 <Send className="h-4 w-4" />
               </button>
             </div>

@@ -175,12 +175,12 @@ export default function CalculatorWizard() {
               <button onClick={() => { setState(p => ({ ...p, perfilCnpj: 'mei' })); setTimeout(nxt, 300); }} className={`p-8 border-2 rounded-2xl hover:border-[#B8941F] hover:shadow-lg transition-all text-left ${sc(state.perfilCnpj === 'mei')}`}>
                 <svg className="w-12 h-12 text-[#B8941F] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Sou MEI</h3>
-                <p className="text-gray-500 text-sm">Microempreendedor Individual — até 5 vidas</p>
+                <p className="text-gray-500 text-sm">Microempreendedor Individual</p>
               </button>
               <button onClick={() => { setState(p => ({ ...p, perfilCnpj: 'pme' })); setTimeout(nxt, 300); }} className={`p-8 border-2 rounded-2xl hover:border-[#B8941F] hover:shadow-lg transition-all text-left ${sc(state.perfilCnpj === 'pme')}`}>
                 <svg className="w-12 h-12 text-[#B8941F] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Sou PME / Empresa</h3>
-                <p className="text-gray-500 text-sm">ME, EPP ou demais — de 2 a 29 vidas</p>
+                <p className="text-gray-500 text-sm">ME, EPP ou demais empresas</p>
               </button>
             </div>
             <button onClick={bck} className="mt-8 w-full py-4 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 transition-all">← Voltar</button>
@@ -206,7 +206,7 @@ export default function CalculatorWizard() {
             {!state.usaBypass ? (
               <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-900 mb-2">Faixa Etária dos Beneficiários <span className="text-red-400">*</span></label>
-                <p className="text-xs text-gray-500 mb-4">Mínimo de 2 vidas para contratação empresarial</p>
+                <p className="text-xs text-gray-500 mb-4">Informe as idades para simulação mais precisa</p>
                 <div className="space-y-3">
                   {state.beneficiarios.map((b, i) => (
                     <div key={b.id} className="flex gap-3 items-center">
@@ -228,7 +228,8 @@ export default function CalculatorWizard() {
                 <select value={state.qtdVidasEstimada} onChange={e => setState(p => ({ ...p, qtdVidasEstimada: e.target.value }))} className="w-full px-4 py-3 border border-gray-300 rounded-xl text-base focus:ring-2 focus:ring-[#B8941F]">
                   <option value="">Selecione</option>
                   <option value="2">2 vidas</option><option value="3">3 vidas</option><option value="4">4 vidas</option><option value="5">5 vidas</option>
-                  <option value="6-10">6 a 10 vidas</option><option value="11-20">11 a 20 vidas</option><option value="21-29">21 a 29 vidas</option><option value="30+">30+ vidas</option>
+                  <option value="6-10">6 a 10 vidas</option><option value="11-20">11 a 20 vidas</option><option value="21-29">21 a 29 vidas</option>
+                  <option value="30-49">30 a 49 vidas</option><option value="50-99">50 a 99 vidas</option><option value="100+">100+ vidas</option>
                 </select>
                 <p className="text-xs text-gray-400 mt-2">A simulação usará faixas etárias médias. Nosso consultor ajustará com dados reais.</p>
                 <button onClick={() => setState(p => ({ ...p, usaBypass: false }))} className="block mt-4 text-sm text-gray-400 hover:text-[#B8941F] underline underline-offset-2 transition-colors">← Prefiro informar as idades</button>

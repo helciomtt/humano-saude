@@ -128,7 +128,7 @@ export default function CockpitPage() {
             onClick={() => setPeriod(opt.value)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               period === opt.value
-                ? 'bg-[#D4AF37] text-black'
+                ? 'bg-[#D4AF37] text-white'
                 : 'border border-white/10 bg-[#0a0a0a] text-gray-400 hover:border-[#D4AF37]/30 hover:text-white'
             }`}
           >

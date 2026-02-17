@@ -133,7 +133,7 @@ export default function AutomacaoPage() {
           onClick={() => setActiveSection('automacoes')}
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             activeSection === 'automacoes'
-              ? 'bg-[#D4AF37] text-black'
+              ? 'bg-[#D4AF37] text-white'
               : 'border border-white/10 text-gray-400 hover:text-white'
           }`}
         >
@@ -143,7 +143,7 @@ export default function AutomacaoPage() {
           onClick={() => setActiveSection('workflows')}
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             activeSection === 'workflows'
-              ? 'bg-[#D4AF37] text-black'
+              ? 'bg-[#D4AF37] text-white'
               : 'border border-white/10 text-gray-400 hover:text-white'
           }`}
         >

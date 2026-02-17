@@ -36,8 +36,17 @@ export function useDealDetail(dealId: string | null) {
   }, [dealId]);
 
   useEffect(() => {
-    if (dealId) fetch();
-    else setDeal(null);
+    const timeoutId = window.setTimeout(() => {
+      if (dealId) {
+        void fetch();
+      } else {
+        setDeal(null);
+      }
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [dealId, fetch]);
 
   // Inline edit de campo
@@ -48,12 +57,17 @@ export function useDealDetail(dealId: string | null) {
     if (!dealId) return;
     const res = await updateDealField(dealId, field, value);
     if (res.success) {
+      if (field === 'owner_corretor_id') {
+        await fetch();
+        toast.success(value ? 'Responsável atualizado' : 'Responsável removido');
+        return;
+      }
       setDeal((prev) => prev ? { ...prev, [field]: value } : prev);
       toast.success('Campo atualizado');
     } else {
       toast.error(res.error ?? 'Erro ao atualizar');
     }
-  }, [dealId]);
+  }, [dealId, fetch]);
 
   // Adicionar atividade
   const handleAddActivity = useCallback(async (input: CrmActivityInsert): Promise<boolean> => {

@@ -296,7 +296,7 @@ export default function DealDrawer({
                       <button
                         onClick={handleSubmit}
                         disabled={!newNote.trim()}
-                        className="px-4 py-1.5 rounded-lg bg-[#D4AF37] text-black text-xs font-medium hover:bg-[#F6E05E] transition-colors disabled:opacity-40"
+                        className="px-4 py-1.5 rounded-lg bg-[#D4AF37] text-white text-xs font-medium hover:bg-[#F6E05E] transition-colors disabled:opacity-40"
                       >
                         Registrar
                       </button>
